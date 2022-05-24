@@ -1,18 +1,22 @@
 package com.example.dmaker.dto;
 
 import lombok.*;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-@Setter
-@Getter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-@RequiredArgsConstructor
+//@Setter
+//@Getter
+//@ToString
+//@Builder
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Slf4j
+@UtilityClass
 public class DevDto {
-        @NonNull
-        private String name;
-        @NonNull
-        private Integer age;
-        private LocalDateTime startAt;
+
+        public static void printLog(){
+                System.out.println(LocalDateTime.of(2021,7,21,3,15));
+        }
 }
