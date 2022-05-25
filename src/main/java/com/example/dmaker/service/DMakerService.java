@@ -1,17 +1,15 @@
 package com.example.dmaker.service;
 
+import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.entity.Developer;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.type.DeveloperLevel;
 import com.example.dmaker.type.DeveloperSkillType;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.InjectService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +39,10 @@ public class DMakerService {
     // private final EntityManager em; 데이터베이스를 추상화 한것
 //    private final EntityManager em;
 
+    // 컨트롤 단에서@Valid를 실행했으므로 Service에서는 안해도됨
+    // CreateDeveloper.@Valid Request request -> CreateDeveloper.Request request
     @Transactional
-    public void createDeveloper(){
+    public void createDeveloper(CreateDeveloper.Request request){
 //        EntityTransaction transaction = em.getTransaction();
 //        try{
 //            transaction.begin();
