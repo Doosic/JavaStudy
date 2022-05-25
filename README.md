@@ -22,23 +22,20 @@ DELETE 메서드를 활용하여 개발자의 정보를 삭제(분리보관)합�
 *intelliJ IDEA 2022 <br>
 
 ## RunTime
-*Node.js <br>
-*Nginx <br>
-*RabbitMq <br>
+*Spring boot (build gradle)<br>
 
 ## Language
-*JavaScript <br>
+*Java <br>
 
 ## Database
-*MongoDB<br>
+*H2<br>
 
 ## Framework
-*VUE.JS <br>
-*express <br>
+*Spring framework<br>
 
 ## Library
 
 ## concept summary
-[Node.js는 무엇이고 왜 사용할까?](https://doosicee.tistory.com/entry/NodeJS-%EB%AC%B4%EC%97%87%EC%9D%B4%EA%B3%A0-%EC%99%9C%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)<br>
+
 
 
