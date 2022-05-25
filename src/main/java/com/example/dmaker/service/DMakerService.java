@@ -43,6 +43,7 @@ public class DMakerService {
     // CreateDeveloper.@Valid Request request -> CreateDeveloper.Request request
     @Transactional
     public void createDeveloper(CreateDeveloper.Request request){
+        validateCreateDeveloperRequest(request);
 //        EntityTransaction transaction = em.getTransaction();
 //        try{
 //            transaction.begin();
@@ -80,6 +81,18 @@ public class DMakerService {
 //            throw err;
 //
 //        }
+    }
+
+    private void validateCreateDeveloperRequest(CreateDeveloper.Request request) {
+        // business validation
+        // 개발 레밸이 시니어면서 나이가 18세 미만이라면 예외를 던져준다.
+        // 기본적으로 예외를 던질때에는 다양한 익셉션을 사용할 수 있지만
+        // 회사에서 만든 애플리케이션의 특정 비즈니스의 예외때는 직접 만드는 커스텀 Exception 을 사용하는것이
+        // 표현력이 풍부하고 원하는 기능을 넣을 수 있어 직접 정의해 주는것이 좋다.
+        if(request.getDeveloperLevel() == DeveloperLevel.SENIOR
+                && request.getExperienceYears() < 18){
+            throw new RuntimeException("SENIOR need 10 years experience.");
+        }
     }
 
 
