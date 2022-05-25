@@ -1,10 +1,13 @@
 package com.example.dmaker.controller;
 
+import com.example.dmaker.service.DMakerService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -18,7 +21,16 @@ import java.util.List;
  */
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class DMakerController {
+    private final DMakerService dMakerService;
+    /*
+        DMakerController(Bean)   DMakerService(Bean)   DeveloperRepository(Bean)
+        =======================Spring Application Contexts=======================
+        스프링이라는 컨텍스트 위에 Bean들을 구성하고 컨트롤러가 서비스를 가져다 쓰고싶다면
+        private final을 통해 호출한다. 그리고 @RequiredArgsConstructor 를 붙여주면
+        service를 Controller에 넣어준다고 생각하면 된다.
+     */
 
     // 사용자의 요청이 우리 서버로 들어와 developers라는 주소로 들어온다면 이곳으로 들어오게 된다.
     @GetMapping("/developers")
@@ -26,5 +38,16 @@ public class DMakerController {
       log.info("GET /developers HTTP/1.1");
 
       return Arrays.asList("snow", "elsa", "Olaf");
+    }
+
+    @GetMapping("/create-developers")
+    public List<String> createDevelopers(){
+        log.info("Get /create-developers HTTP/1.1");
+        // Get은 무언가를 받아올때에 사용하는것이 옳다.
+        // 변경이 있을때에는 Post를 사용하는 것이 좋다.
+        dMakerService.createDeveloper();
+
+        // 단일 객체를 들고있을때에는 singletonList를 사용하는 것이 좋다.
+        return Collections.singletonList("Olaf");
     }
 }

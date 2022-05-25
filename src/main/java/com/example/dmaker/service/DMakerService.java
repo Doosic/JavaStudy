@@ -1,0 +1,54 @@
+package com.example.dmaker.service;
+
+import com.example.dmaker.entity.Developer;
+import com.example.dmaker.repository.DeveloperRepository;
+import com.example.dmaker.type.DeveloperLevel;
+import com.example.dmaker.type.DeveloperSkillType;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.service.spi.InjectService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class DMakerService {
+    /*
+        @RequiredArgsConstructor
+        Service나 Controller는 위의 어노테이션을 사용하면 편리하다.
+        자동으로 DeveloperRepository를 자동으로 Injection 해준다.
+
+        과거에는 @Autowired, @Inject를 사용했어야 한다.
+        @Autowired
+        @Inject
+        private DeveloperRepository developerRepository;
+        이걸 사용시 서비스 코드가 어노테이션에 종속적으로 만들어져있어 서비스를 단독으로
+        테스트를 하고싶어도 하기 어려워지는 문제가 있었다.
+
+        그래서 개선방안으로 나온게 생성자를 통한 주입 방식이였다
+        그런데 이런 방식에 문제도 서비스와 Reposiroty가 여러개일때에 고치기 힘들기에
+        다음과 같은 방식이 나온것이다.
+        public DMakerService(DeveloperRepository developerRepository){
+        this.developerRepository = developerRepository;
+    }
+     */
+
+    // final이 붙은애는 무조건 있어야 하기 때문에 final이 붙은 기본 생성자를 만들어준다.
+    private final DeveloperRepository developerRepository;
+
+    @Transactional
+    public void createDeveloper(){
+        Developer developer = Developer.builder()
+                .developerLevel(DeveloperLevel.JUNGIOR)
+                .developerSkillType(DeveloperSkillType.FRONT_END)
+                .experienceYears(2)
+                .name("Olaf")
+                .age(5)
+                .build();
+
+        developerRepository.save(developer);
+    }
+
+
+}
