@@ -9,6 +9,8 @@ import org.hibernate.service.spi.InjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.transaction.Transactional;
 
 @Service
@@ -36,18 +38,48 @@ public class DMakerService {
 
     // final이 붙은애는 무조건 있어야 하기 때문에 final이 붙은 기본 생성자를 만들어준다.
     private final DeveloperRepository developerRepository;
+    // private final EntityManager em; 데이터베이스를 추상화 한것
+//    private final EntityManager em;
 
     @Transactional
     public void createDeveloper(){
-        Developer developer = Developer.builder()
-                .developerLevel(DeveloperLevel.JUNGIOR)
-                .developerSkillType(DeveloperSkillType.FRONT_END)
-                .experienceYears(2)
-                .name("Olaf")
-                .age(5)
-                .build();
+//        EntityTransaction transaction = em.getTransaction();
+//        try{
+//            transaction.begin();
 
-        developerRepository.save(developer);
+            // buisness logic start
+            Developer developer = Developer.builder()
+                    .developerLevel(DeveloperLevel.JUNGIOR)
+                    .developerSkillType(DeveloperSkillType.FRONT_END)
+                    .experienceYears(2)
+                    .name("Olaf")
+                    .age(5)
+                    .build();
+
+            // A - > B 1만원 송금
+            // A 계좌에서 1만원 줄임
+            developerRepository.save(developer);
+            // B 계좌에서 1만원 늘림
+            developerRepository.delete(developer);
+            // business logic end
+            // AOP가 이런때에 적용된다. 특정 우리가 넣고싶은 곳에 넣을때에 넣을수 있는데(포인트컷)
+            // 좀 더 많이쓰이는것은 Annotation 기반의 포인트 컷이다.
+            /*
+                @Transactional을 클래스나 메서드 위에 붙여주면 다음과같은
+                EntityTransaction transaction = em.getTransaction();
+                transaction.begin();
+                transaction.commit();
+                transaction.rollback();
+                귀찮은 과정들을 쓰지 않아도된다.
+             */
+
+            // 위와같은 작업을 하다가 중간에 뻑나면 커밋이 아닌 롤백을 해야함
+//            transaction.commit();
+//        }catch (Exception err){
+//            transaction.rollback();
+//            throw err;
+//
+//        }
     }
 
 
