@@ -1,0 +1,10 @@
+@NotNull : null값이 들어와서는 안됨
+@Min(0) : 0이상
+@Max(20) : 20이하
+
+@NotNull이 안붙었지만 조건들이 붙어있다면
+NotNull 을 안붙였기에 값이 없을수도 있지만 있다면 18세 이하
+@Min(18) 가 된다.
+
+@Valid
+@RequestBody

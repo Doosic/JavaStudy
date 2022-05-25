@@ -1,11 +1,15 @@
 package com.example.dmaker.controller;
 
+import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.service.DMakerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,18 +38,22 @@ public class DMakerController {
 
     // 사용자의 요청이 우리 서버로 들어와 developers라는 주소로 들어온다면 이곳으로 들어오게 된다.
     @GetMapping("/developers")
-    public List<String> getAllDevelopers(){
-      log.info("GET /developers HTTP/1.1");
+    public List<String> getAllDevelopers() {
+        log.info("GET /developers HTTP/1.1");
 
-      return Arrays.asList("snow", "elsa", "Olaf");
+        return Arrays.asList("snow", "elsa", "Olaf");
     }
 
-    @GetMapping("/create-developers")
-    public List<String> createDevelopers(){
-        log.info("Get /create-developers HTTP/1.1");
+    @PostMapping("/create-developers")
+    public List<String> createDevelopers(
+           @Valid @RequestBody CreateDeveloper.Request request
+            ) {
+        // @Valid 바디에 들어온 값들을 담아주면서 벨리데이션을 해주고 문제가 생기면 메서드 진입전에 익셉션을 일으켜준다.
+        // @RequestBody CreateDeveloper에 Request에 담아주겠다 라는 의미
+        log.info("request : ",request);
         // Get은 무언가를 받아올때에 사용하는것이 옳다.
         // 변경이 있을때에는 Post를 사용하는 것이 좋다.
-        dMakerService.createDeveloper();
+        dMakerService.createDeveloper(request);
 
         // 단일 객체를 들고있을때에는 singletonList를 사용하는 것이 좋다.
         return Collections.singletonList("Olaf");
