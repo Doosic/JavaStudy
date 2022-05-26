@@ -43,9 +43,9 @@ public class DMakerController {
 
         return Arrays.asList("snow", "elsa", "Olaf");
     }
-
+    //POST맨으로 호출할 수 있지만 Intellij안에 내장되어있는걸 사용
     @PostMapping("/create-developers")
-    public List<String> createDevelopers(
+    public CreateDeveloper.Response createDevelopers(
            @Valid @RequestBody CreateDeveloper.Request request
             ) {
         // @Valid 바디에 들어온 값들을 담아주면서 벨리데이션을 해주고 문제가 생기면 메서드 진입전에 익셉션을 일으켜준다.
@@ -53,9 +53,9 @@ public class DMakerController {
         log.info("request : ",request);
         // Get은 무언가를 받아올때에 사용하는것이 옳다.
         // 변경이 있을때에는 Post를 사용하는 것이 좋다.
-        dMakerService.createDeveloper(request);
+//        dMakerService.createDeveloper(request);
 
         // 단일 객체를 들고있을때에는 singletonList를 사용하는 것이 좋다.
-        return Collections.singletonList("Olaf");
+        return dMakerService.createDeveloper(request);
     }
 }

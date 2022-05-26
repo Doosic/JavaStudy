@@ -49,7 +49,7 @@ public class DMakerService {
     // 컨트롤 단에서@Valid를 실행했으므로 Service에서는 안해도됨
     // CreateDeveloper.@Valid Request request -> CreateDeveloper.Request request
     @Transactional
-    public void createDeveloper(CreateDeveloper.Request request){
+    public CreateDeveloper.Response createDeveloper(CreateDeveloper.Request request){
         validateCreateDeveloperRequest(request);
 //        EntityTransaction transaction = em.getTransaction();
 //        try{
@@ -57,16 +57,19 @@ public class DMakerService {
 
             // buisness logic start
             Developer developer = Developer.builder()
-                    .developerLevel(DeveloperLevel.JUNGIOR)
-                    .developerSkillType(DeveloperSkillType.FRONT_END)
-                    .experienceYears(2)
-                    .name("Olaf")
-                    .age(5)
+                    .developerLevel(request.getDeveloperLevel())
+                    .developerSkillType(request.getDeveloperSkillType())
+                    .experienceYears(request.getExperienceYears())
+                    .memberId(request.getMemberId())
+                    .name(request.getName())
+                    .age(request.getAge())
                     .build();
+            developerRepository.save(developer);
+            return CreateDeveloper.Response.fromEntity(developer);
 
             // A - > B 1만원 송금
             // A 계좌에서 1만원 줄임
-            developerRepository.save(developer);
+//            developerRepository.save(developer);
             // B 계좌에서 1만원 늘림
 //            developerRepository.delete(developer);
             // business logic end
