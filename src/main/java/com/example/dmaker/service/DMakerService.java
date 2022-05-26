@@ -2,6 +2,8 @@ package com.example.dmaker.service;
 
 import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.entity.Developer;
+import com.example.dmaker.exception.DMakerErrorCode;
+import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.type.DeveloperLevel;
 import com.example.dmaker.type.DeveloperSkillType;
@@ -10,6 +12,11 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+
+import java.util.Optional;
+
+import static com.example.dmaker.exception.DMakerErrorCode.DUPLICATED_MEMBER_ID;
+import static com.example.dmaker.exception.DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +68,7 @@ public class DMakerService {
             // A 계좌에서 1만원 줄임
             developerRepository.save(developer);
             // B 계좌에서 1만원 늘림
-            developerRepository.delete(developer);
+//            developerRepository.delete(developer);
             // business logic end
             // AOP가 이런때에 적용된다. 특정 우리가 넣고싶은 곳에 넣을때에 넣을수 있는데(포인트컷)
             // 좀 더 많이쓰이는것은 Annotation 기반의 포인트 컷이다.
@@ -89,10 +96,38 @@ public class DMakerService {
         // 기본적으로 예외를 던질때에는 다양한 익셉션을 사용할 수 있지만
         // 회사에서 만든 애플리케이션의 특정 비즈니스의 예외때는 직접 만드는 커스텀 Exception 을 사용하는것이
         // 표현력이 풍부하고 원하는 기능을 넣을 수 있어 직접 정의해 주는것이 좋다.
-        if(request.getDeveloperLevel() == DeveloperLevel.SENIOR
-                && request.getExperienceYears() < 18){
-            throw new RuntimeException("SENIOR need 10 years experience.");
+        DeveloperLevel developerLevel = request.getDeveloperLevel();
+        Integer experienceYears = request.getExperienceYears();
+        if(developerLevel == DeveloperLevel.SENIOR
+                && experienceYears < 18){
+
+            // 해당 Enum값을 import static해서 사용해주는것도 좋다.
+            // 전 : DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED
+            // 후 : LEVEL_EXPERIENCE_YEARS_NOT_MATCHED
+            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
         }
+        // 인텔리제이를 활용한 반복코드 지역변수로 활용하기
+        // Ctrl + Alt + v 를 사용하면 반복되는 코드들을 지역변수로 만들어주고 전부 변경시켜준다.
+        if(developerLevel == DeveloperLevel.JUNGIOR
+                &&(experienceYears < 4 || experienceYears > 10)){
+            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+        }
+        if(developerLevel == DeveloperLevel.JUNGIOR && experienceYears > 4){
+            throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+        }
+        // 동일한 memberID를 막기위해 조회하여 중복체크를 하기위함
+        developerRepository.findByMemberId(request.getMemberId())
+                .ifPresent((developer -> {
+                    throw new DMakerException(DUPLICATED_MEMBER_ID);
+                }));
+
+        /*
+            기존에는 아래 코드와 같은 방식을 사용했지만 자바8에서는 위와같은 다른 방식을 지원해준다.(지역변수 안써도됨)
+            Optional<Developer> developer =  developerRepository.findByMemberId(request.getMemberId());
+                if(developer.isPresent())
+                    throw new DMakerException(DUPLICATED_MEMBER_ID);
+         */
+
     }
 
 
