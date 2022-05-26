@@ -1,5 +1,6 @@
 package com.example.dmaker.dto;
 
+import com.example.dmaker.entity.Developer;
 import com.example.dmaker.type.DeveloperLevel;
 import com.example.dmaker.type.DeveloperSkillType;
 import lombok.*;
@@ -53,5 +54,15 @@ public class CreateDeveloper {
         private Integer experienceYears;
         // 개발자 생성에 대한 응답에서는 이름, 나이는 개인정보라 제외
         private String memberId;
+
+        // developer 값들을 받아 하나하나 뽑아서 객체를 만들어 리턴해주는 static한 메서드
+        public static Response fromEntity(Developer developer){
+            return Response.builder()
+                    .developerLevel(developer.getDeveloperLevel())
+                    .developerSkillType(developer.getDeveloperSkillType())
+                    .experienceYears(developer.getExperienceYears())
+                    .memberId(developer.getMemberId())
+                    .build();
+        }
     }
 }
