@@ -7,9 +7,9 @@ Content-Type: application/json
 {
   "developerLevel": "JUNIOR",
   "developerSkillType": "FRONT_END",
-  "experienceYears": 2,
-  "memberId": "Mickys",
-  "name": "mouse",
-  "age": 17
+  "experienceYears": 3,
+  "memberId": "kamil",
+  "name": "kamil kim",
+  "age": 25
 
 }
