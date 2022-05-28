@@ -1,13 +1,12 @@
 package com.example.dmaker.controller;
 
 import com.example.dmaker.dto.CreateDeveloper;
+import com.example.dmaker.dto.DeveloperDetailDto;
+import com.example.dmaker.dto.DeveloperDto;
 import com.example.dmaker.service.DMakerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -38,11 +37,23 @@ public class DMakerController {
 
     // 사용자의 요청이 우리 서버로 들어와 developers라는 주소로 들어온다면 이곳으로 들어오게 된다.
     @GetMapping("/developers")
-    public List<String> getAllDevelopers() {
+    public List<DeveloperDto> getAllDevelopers() {
+        // 여러명의 정보를 가져오기 때문에 List를 사용한다.
         log.info("GET /developers HTTP/1.1");
 
-        return Arrays.asList("snow", "elsa", "Olaf");
+        return dMakerService.getAllDevelopers();
     }
+
+    // 현재 리스트와 상세정보를 보여주는 dto를 분리하여 사용함.
+    @GetMapping("/developer/{memberId}")
+    public DeveloperDetailDto getDeveloperDetail(
+            @PathVariable String memberId
+    ){
+        log.info("GET /developer HTTP/1.1");
+
+        return dMakerService.getAllDeveloperDetail(memberId);
+    }
+
     //POST맨으로 호출할 수 있지만 Intellij안에 내장되어있는걸 사용
     @PostMapping("/create-developers")
     public CreateDeveloper.Response createDevelopers(

@@ -1,6 +1,8 @@
 package com.example.dmaker.service;
 
 import com.example.dmaker.dto.CreateDeveloper;
+import com.example.dmaker.dto.DeveloperDetailDto;
+import com.example.dmaker.dto.DeveloperDto;
 import com.example.dmaker.entity.Developer;
 import com.example.dmaker.exception.DMakerErrorCode;
 import com.example.dmaker.exception.DMakerException;
@@ -13,10 +15,11 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static com.example.dmaker.exception.DMakerErrorCode.DUPLICATED_MEMBER_ID;
-import static com.example.dmaker.exception.DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED;
+import static com.example.dmaker.exception.DMakerErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -133,5 +136,19 @@ public class DMakerService {
 
     }
 
+    // Developer를 모두 가져오는 기능
+    public List<DeveloperDto> getAllDevelopers() {
+        return developerRepository.findAll()
+                .stream().map(DeveloperDto::fromEntity)
+                .collect(Collectors.toList());
+    }
 
+    // Optional은 map함수를 지원해준다. 그 덕에 developerEntity를 detailDto로 변환이 가능하다.
+    // 무언가를 썻을때에 노란색이 뜬다면 더 좋은방법을 추천해주므로 확인해보자
+    public DeveloperDetailDto getAllDeveloperDetail(String memberId) {
+        return developerRepository.findByMemberId(memberId)
+                .map(DeveloperDetailDto::fromEntity)
+                .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+        // .orElseThrow를 사용하면 데이터가 있다면 return, 없다면 Exception을 던진다.
+    }
 }
