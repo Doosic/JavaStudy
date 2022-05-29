@@ -38,7 +38,7 @@ public class CreateDeveloper {
         @Size(min = 3, max = 50, message = "name size must 3~50")
         private String name;
 
-        // NotNull 을 안붙였기에 값이 없을수도 있지만 있다면 18세 이하
+        // NotNull 을 안붙였기에 값이 없을수도 있지만 있다면 최소18세
         @Min(18)
         private Integer age;
     }
