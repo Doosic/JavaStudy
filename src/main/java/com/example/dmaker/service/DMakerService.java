@@ -3,6 +3,7 @@ package com.example.dmaker.service;
 import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.dto.DeveloperDetailDto;
 import com.example.dmaker.dto.DeveloperDto;
+import com.example.dmaker.dto.EditDeveloper;
 import com.example.dmaker.entity.Developer;
 import com.example.dmaker.exception.DMakerErrorCode;
 import com.example.dmaker.exception.DMakerException;
@@ -102,25 +103,27 @@ public class DMakerService {
         // 기본적으로 예외를 던질때에는 다양한 익셉션을 사용할 수 있지만
         // 회사에서 만든 애플리케이션의 특정 비즈니스의 예외때는 직접 만드는 커스텀 Exception 을 사용하는것이
         // 표현력이 풍부하고 원하는 기능을 넣을 수 있어 직접 정의해 주는것이 좋다.
-        DeveloperLevel developerLevel = request.getDeveloperLevel();
-        Integer experienceYears = request.getExperienceYears();
-        if(developerLevel == DeveloperLevel.SENIOR
-                && experienceYears < 18){
-
-            // 해당 Enum값을 import static해서 사용해주는것도 좋다.
-            // 전 : DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED
-            // 후 : LEVEL_EXPERIENCE_YEARS_NOT_MATCHED
-            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
-        }
+        // 변수 생성은 이름에 특별한 의미가 있는것이 아니고, 한번만 사용할 것이라면 제거하는것이 좋다.
+//        DeveloperLevel developerLevel = request.getDeveloperLevel();
+//        Integer experienceYears = request.getExperienceYears();
+//        if(developerLevel == DeveloperLevel.SENIOR
+//                && experienceYears < 18){
+//
+//            // 해당 Enum값을 import static해서 사용해주는것도 좋다.
+//            // 전 : DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED
+//            // 후 : LEVEL_EXPERIENCE_YEARS_NOT_MATCHED
+//            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+//        }
         // 인텔리제이를 활용한 반복코드 지역변수로 활용하기
         // Ctrl + Alt + v 를 사용하면 반복되는 코드들을 지역변수로 만들어주고 전부 변경시켜준다.
-        if(developerLevel == DeveloperLevel.JUNGIOR
-                &&(experienceYears < 4 || experienceYears > 10)){
-            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
-        }
-        if(developerLevel == DeveloperLevel.JUNGIOR && experienceYears > 4){
-            throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
-        }
+//        if(developerLevel == DeveloperLevel.JUNGIOR
+//                &&(experienceYears < 4 || experienceYears > 10)){
+//            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+//        }
+//        if(developerLevel == DeveloperLevel.JUNGIOR && experienceYears > 4){
+//            throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+//        }
+        validateDeveloperLevel(request.getDeveloperLevel(), request.getExperienceYears());
         // 동일한 memberID를 막기위해 조회하여 중복체크를 하기위함
         developerRepository.findByMemberId(request.getMemberId())
                 .ifPresent((developer -> {
@@ -150,5 +153,48 @@ public class DMakerService {
                 .map(DeveloperDetailDto::fromEntity)
                 .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
         // .orElseThrow를 사용하면 데이터가 있다면 return, 없다면 Exception을 던진다.
+    }
+
+    /*
+        @Transactional
+        이 메서드가 들어가기 전에 트랜잭션을 시작했다가
+        디벨로퍼 엔티티에 값을 바꾸고 더티 체킹을해서 수정되는 사항이 커밋되도록 한다.
+     */
+    @Transactional
+    public DeveloperDetailDto editDeveloper(String memberId, EditDeveloper.Request request) {
+        validateEditDeveloperRequest(request, memberId);
+
+        Developer developer = developerRepository.findByMemberId(memberId).orElseThrow(
+                () -> new DMakerException(NO_DEVELOPER)
+        );
+
+        developer.setDeveloperLevel(request.getDeveloperLevel());
+        developer.setDeveloperSkillType(request.getDeveloperSkillType());
+        developer.setExperienceYears(request.getExperienceYears());
+
+        return DeveloperDetailDto.fromEntity(developer);
+    }
+
+    private void validateEditDeveloperRequest(
+            EditDeveloper.Request request,
+            String memberId) {
+        validateDeveloperLevel(
+                request.getDeveloperLevel(),
+                request.getExperienceYears()
+        );
+    }
+
+    private void validateDeveloperLevel(DeveloperLevel developerLevel, Integer experienceYears) {
+        if(developerLevel == DeveloperLevel.SENIOR
+                && experienceYears < 10){
+            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+        }
+        if(developerLevel == DeveloperLevel.JUNGNIOR
+                &&(experienceYears < 4 || experienceYears > 10)){
+            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+        }
+        if(developerLevel == DeveloperLevel.JUNGNIOR && experienceYears > 4){
+            throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+        }
     }
 }
