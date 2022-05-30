@@ -1,5 +1,6 @@
 package com.example.dmaker.entity;
 
+import com.example.dmaker.code.StatusCode;
 import com.example.dmaker.type.DeveloperLevel;
 import com.example.dmaker.type.DeveloperSkillType;
 import lombok.*;
@@ -41,6 +42,9 @@ public class Developer {
     private String memberId;
     private String name;
     private Integer age;
+
+    @Enumerated(EnumType.STRING)
+    private StatusCode statusCode;
 
     @CreatedDate // 오디팅이라는 기능 자동으로 생성시점과 수정시점을 저장해준다.
     private LocalDateTime createAt;

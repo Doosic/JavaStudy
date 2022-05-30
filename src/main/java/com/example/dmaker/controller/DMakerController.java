@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /*
@@ -42,7 +40,7 @@ public class DMakerController {
         // 여러명의 정보를 가져오기 때문에 List를 사용한다.
         log.info("GET /developers HTTP/1.1");
 
-        return dMakerService.getAllDevelopers();
+        return dMakerService.getAllEmployedDevelopers();
     }
 
     // 현재 리스트와 상세정보를 보여주는 dto를 분리하여 사용함.
@@ -79,5 +77,14 @@ public class DMakerController {
         log.info("GET /developer HTTP/1.1");
 
         return dMakerService.editDeveloper(memberId, request);
+    }
+
+    @DeleteMapping ("/developer/{memberId}")
+    public DeveloperDetailDto deleteDeveloper(
+            @PathVariable String memberId
+    ){
+        log.info("GET /developer HTTP/1.1");
+
+        return dMakerService.deleteDeveloper(memberId);
     }
 }

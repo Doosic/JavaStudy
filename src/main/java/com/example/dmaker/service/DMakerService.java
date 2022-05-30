@@ -1,23 +1,22 @@
 package com.example.dmaker.service;
 
+import com.example.dmaker.code.StatusCode;
 import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.dto.DeveloperDetailDto;
 import com.example.dmaker.dto.DeveloperDto;
 import com.example.dmaker.dto.EditDeveloper;
 import com.example.dmaker.entity.Developer;
-import com.example.dmaker.exception.DMakerErrorCode;
+import com.example.dmaker.entity.RetiredDeveloper;
 import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.repository.DeveloperRepository;
+import com.example.dmaker.repository.RetiredDeveloperRepository;
 import com.example.dmaker.type.DeveloperLevel;
-import com.example.dmaker.type.DeveloperSkillType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.dmaker.exception.DMakerErrorCode.*;
@@ -47,6 +46,7 @@ public class DMakerService {
 
     // final이 붙은애는 무조건 있어야 하기 때문에 final이 붙은 기본 생성자를 만들어준다.
     private final DeveloperRepository developerRepository;
+    private final RetiredDeveloperRepository retiredDeveloperRepository;
     // private final EntityManager em; 데이터베이스를 추상화 한것
 //    private final EntityManager em;
 
@@ -65,6 +65,7 @@ public class DMakerService {
                     .developerSkillType(request.getDeveloperSkillType())
                     .experienceYears(request.getExperienceYears())
                     .memberId(request.getMemberId())
+                    .statusCode(StatusCode.EMPLOYED)
                     .name(request.getName())
                     .age(request.getAge())
                     .build();
@@ -140,8 +141,8 @@ public class DMakerService {
     }
 
     // Developer를 모두 가져오는 기능
-    public List<DeveloperDto> getAllDevelopers() {
-        return developerRepository.findAll()
+    public List<DeveloperDto> getAllEmployedDevelopers() {
+        return developerRepository.findDevelopersByStatusCodeEquals(StatusCode.EMPLOYED)
                 .stream().map(DeveloperDto::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -196,5 +197,36 @@ public class DMakerService {
         if(developerLevel == DeveloperLevel.JUNGNIOR && experienceYears > 4){
             throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
         }
+    }
+    /*
+         DB의 데이터가 수정되는 상황에 있어
+         JPA의 더티체킹을 통한 자동 업데이트도 트렌젝션을 통해 이루어지고,
+         나중에 여러개의 값이 수정되야하고 추후의 변화가능성을 열어둔다면
+         트렌젝션을 붙여두는게 유리하다고 생각한다고 한다.
+
+         부연설명
+         트랜잭션을 사용하지 않는다면 처음 1번에서 StatusCode의 값을
+         EMPLOYED -> RETIRED로 수정한 후 SAVE를 해서 수정값을 저장하고
+         2번으로 이동하여 RetiredDeveloper 테이블에 데이터를 생성해 주었을 것이다.
+         근데 1번에서 값을 수정하고 save가 된 뒤에 문제가 생긴다면...??
+         1번만 save되어 값이변경되고 2번은 아무일도 일어나지않아 데이터가 뒤틀릴것이다.
+
+         그렇기에 트랜젝션을 사용하여 1번 이후 문제가 생기면 Rollback하여 아무일도 일어나지 않은것처럼
+         돌리거나, 문제가 없다면 둘다 실행되게 하는것이다
+         더티체킹 뭕 ㅣ공부해야함
+     */
+    @Transactional
+    public DeveloperDetailDto deleteDeveloper(String memberId) {
+        // 1. EMPLOYED -> RETIRED
+        Developer developer = developerRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+        developer.setStatusCode(StatusCode.RETIRED);
+        // 2. save into RetireDeveloper
+        RetiredDeveloper retiredDeveloper = RetiredDeveloper.builder()
+                .memberId(memberId)
+                .name(developer.getName())
+                .build();
+        retiredDeveloperRepository.save(retiredDeveloper);
+        return DeveloperDetailDto.fromEntity(developer);
     }
 }
