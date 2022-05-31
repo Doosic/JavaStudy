@@ -1,14 +1,14 @@
 package com.example.dmaker.controller;
 
-import com.example.dmaker.dto.CreateDeveloper;
-import com.example.dmaker.dto.DeveloperDetailDto;
-import com.example.dmaker.dto.DeveloperDto;
-import com.example.dmaker.dto.EditDeveloper;
+import com.example.dmaker.dto.*;
+import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.service.DMakerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -86,5 +86,20 @@ public class DMakerController {
         log.info("GET /developer HTTP/1.1");
 
         return dMakerService.deleteDeveloper(memberId);
+    }
+
+    // () 사이에 원하는 Exception 을 넣어줄 수 있다.
+    // HttpStatus.CONFLICT 는 상수로 지정되어있어서 적절히 가져다 쓸수있다.
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    @ExceptionHandler(DMakerException.class)
+    public DMakerErrorResponse handleException(
+            DMakerException e,
+            HttpServletRequest request){
+        log.error("errorCode: {}, url: {}, message: {}",
+                e.getDMakerErrorCode(), request.getRequestURI(), e.getDetailMessage());
+        return DMakerErrorResponse.builder()
+                .errorCode(e.getDMakerErrorCode())
+                .errorMessage(e.getDetailMessage())
+                .build();
     }
 }

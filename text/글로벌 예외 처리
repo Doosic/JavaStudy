@@ -1,0 +1,31 @@
+글로벌 예외 처리
+1. 특정 메서드나 비즈니스 로직에 한정적인 예외처리는 좋지못함.
+2. 상황에 따라 boolean 또는 String 예외처리를 계속 해주어야 하는 문제 발생.
+
+
+
+사용법
+Controller 에 @ExceptionHandler 를 만들어 컨트롤러 전용 에러 처리 핸들러를 만든다.
+
+Exception 과 구조는 비슷하고 api 별로 성공때에 내려주는 응답은 각자 다르나
+실패 때에는 공통적인 실패 dto 를 만드는 방식으로 사용한다.
+
+@ExceptionHandler 는 요청이 들어왔던 HttpServletRequest 를 함께 받을 수 있다.
+
+// () 사이에 원하는 Exception을 넣어줄 수 있다.
+    @ExceptionHandler(DMakerException.class)
+    public DMakerResponse handleException(
+            DMakerException e,
+            HttpServletRequest request){
+        log.error("errorCode: {}, url: {}, message: {}", e.getDMakerErrorCode(), );
+    }
+
+응답 200은 성공에 대한 응답이기때문에
+HttpStatus.CONFLICT 는 상수로 지정되어있어서 적절히 가져다 쓸수있다.
+@ResponseStatus(value = HttpStatus.CONFLICT)
+메서드위에 다음과같이 사용하여 에러메세지(400번대)에 맞는적절한 응답을 내려주자.
+
+HttpStatus.CONFLICT 는 중복 메세지인데 무엇에 대한 중복인지 알수없음
+어느 상황에 맞는 응답인지 알 수 없기때문에 실제 업무에서는 status 코드를 200으로 내려주고
+errorCode 나 errorMessage 로 세부적인 내용을 보내주는게 요즘 추세라고 한다.
+
