@@ -90,16 +90,16 @@ public class DMakerController {
 
     // () 사이에 원하는 Exception 을 넣어줄 수 있다.
     // HttpStatus.CONFLICT 는 상수로 지정되어있어서 적절히 가져다 쓸수있다.
-    @ResponseStatus(value = HttpStatus.CONFLICT)
-    @ExceptionHandler(DMakerException.class)
-    public DMakerErrorResponse handleException(
-            DMakerException e,
-            HttpServletRequest request){
-        log.error("errorCode: {}, url: {}, message: {}",
-                e.getDMakerErrorCode(), request.getRequestURI(), e.getDetailMessage());
-        return DMakerErrorResponse.builder()
-                .errorCode(e.getDMakerErrorCode())
-                .errorMessage(e.getDetailMessage())
-                .build();
-    }
+//    @ResponseStatus(value = HttpStatus.CONFLICT)
+//    @ExceptionHandler(DMakerException.class)
+//    public DMakerErrorResponse handleException(
+//            DMakerException e,
+//            HttpServletRequest request){
+//        log.error("errorCode: {}, url: {}, message: {}",
+//                e.getDMakerErrorCode(), request.getRequestURI(), e.getDetailMessage());
+//        return DMakerErrorResponse.builder()
+//                .errorCode(e.getDMakerErrorCode())
+//                .errorMessage(e.getDetailMessage())
+//                .build();
+//    }
 }
