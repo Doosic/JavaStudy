@@ -1,0 +1,25 @@
+*Junit 5 자바의 유닛테스트를 위한 프레임워크이다.
+(다른 언어들에서도 유닛테스트를 하기위한 큰 사상이 있었는데 자바에서도 가져와서 만든것이다.)
+-Junit 은 자바의 유닛테스트이기에 순수히 온전히 자바를 위한 테스트이다.
+
+
+*build.gradle 에 dependencies 에 기본적으로 starter-test 가 포함이 되는데,
+그 안에 여러가지가 들어가고 그중 핵심이 Junit5이다.
+testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+*테스트 class 쉽게 만드는 방법
+-테스트를 하고싶은 class에 들어간다.
+-Ctrl + Shift + T를 눌러준다.
+
+*SpringBootTest
+Service 단은 Repository, Dto 등.. 많은것을 의존하고 있다. 그렇기에 아래와 같이 사용하기는 힘들다.
+private DMakerService dMakerService = new DMakerService();
+그래서 @SpringBootTest 라는걸 사용한다.
+
+그러나 @SpringBootTest 를 사용하면 격리성이 떨어지게되고
+db에 어떠한 데이터가 있어야 실행이 된다. 그래서 Mockito 를 사용한다.
+
+
+*Mockito
+
+

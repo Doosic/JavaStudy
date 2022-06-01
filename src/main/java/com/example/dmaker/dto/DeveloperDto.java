@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class DeveloperDto {
     private DeveloperLevel developerLevel;
     private DeveloperSkillType developerSkillType;
