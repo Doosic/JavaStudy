@@ -88,7 +88,7 @@ class DMakerServiceTest {
     @Test
     public void testSomething(){
 
-        assert 시리즈는 Junit 의 jupiter 시리즈에서 나오는 검증 방법이다.
+        assert 시리즈는 Junit 의 jupiter 시리즈에서 나오는 검증 방법이다
         Ctrl + shift + F10 단축키로 간편하게 실행가능
         assertEquals("예상값", "hello world!") 왼쪽은 예상값, 오른쪽은 실제값을 넣어준다.
         테스트 성공 : 아무런 오류도 뱉지않고 v체크만을 해준다.
