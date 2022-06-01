@@ -58,12 +58,17 @@ public class DMakerController {
     public CreateDeveloper.Response createDevelopers(
            @Valid @RequestBody CreateDeveloper.Request request
             ) {
-        // @Valid 바디에 들어온 값들을 담아주면서 벨리데이션을 해주고 문제가 생기면 메서드 진입전에 익셉션을 일으켜준다.
-        // @RequestBody CreateDeveloper에 Request에 담아주겠다 라는 의미
+        /*
+         @Valid 바디에 들어온 값들을 담아주면서 벨리데이션을 해주고 문제가 생기면 메서드 진입전에 익셉션을 일으켜준다.
+         @RequestBody CreateDeveloper에 Request에 담아주겠다 라는 의미
+
+         Get은 무언가를 받아올때에 사용하는것이 옳다.
+         변경이 있을때에는 Post를 사용하는 것이 좋다.
+
+         과거에는 컨트롤러에서 Exception을 처리하였고 이곳에서 예외적인 상황이 발생한다면
+         바로 로직을 멈추고 예외처리 응답을 만들어 주는 방식을 사용했었다.
+         */
         log.info("request : ",request);
-        // Get은 무언가를 받아올때에 사용하는것이 옳다.
-        // 변경이 있을때에는 Post를 사용하는 것이 좋다.
-//        dMakerService.createDeveloper(request);
 
         // 단일 객체를 들고있을때에는 singletonList를 사용하는 것이 좋다.
         return dMakerService.createDeveloper(request);
