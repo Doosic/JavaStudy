@@ -53,6 +53,7 @@ public class DMakerService {
     // CreateDeveloper.@Valid Request request -> CreateDeveloper.Request request
     @Transactional
     public CreateDeveloper.Response createDeveloper(CreateDeveloper.Request request){
+        // 1.Test 시 validation 이 잘 동작하는지 검증해야한다.
         validateCreateDeveloperRequest(request);
 //        EntityTransaction transaction = em.getTransaction();
 //        try{
@@ -68,6 +69,8 @@ public class DMakerService {
                     .name(request.getName())
                     .age(request.getAge())
                     .build();
+            // 2.Test 시 이곳에서 잘 저장하는지.
+            // Mock 객체가 받은 파라미터 값을 캡쳐하여 파라미터 값을 검증에 활용할 수 있다.
             developerRepository.save(developer);
             return CreateDeveloper.Response.fromEntity(developer);
 /*
