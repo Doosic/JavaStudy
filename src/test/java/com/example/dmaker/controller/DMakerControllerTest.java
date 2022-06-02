@@ -10,17 +10,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 /*
     @WebMvcTest()
     컨트롤러 관련 빈들만 활성화 시켜서 사용할 수 있다.
@@ -68,14 +65,16 @@ class DMakerControllerTest {
                json 으로 주고 받는다고 설정
          */
         mockMvc.perform(get("/developers").contentType(contentType))
-                .andExpect(status().isOk()) // status 가 ok 라는것을 예상하고 있다.
+                .andExpect(status().isOk())
                 .andExpect(
-                        (ResultMatcher) jsonPath("$.[0].developerSkillType",
-                               is(DeveloperSkillType.BACK_END.name()))
+                        jsonPath("$.[0].developerSkillType",
+                                is(DeveloperSkillType.BACK_END.name()))
                 ).andExpect(
-                        (ResultMatcher) jsonPath("$.[1].developerSkillType",
-                             is(DeveloperSkillType.FRONT_END.name()))
+                        jsonPath("$.[1].developerSkillType",
+                                is(DeveloperSkillType.FRONT_END.name()))
                 );
+
+
 
   }
 
