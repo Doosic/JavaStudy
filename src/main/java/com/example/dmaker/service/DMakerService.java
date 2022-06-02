@@ -8,11 +8,13 @@ import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.repository.RetiredDeveloperRepository;
 import com.example.dmaker.type.DeveloperLevel;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+//import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,36 +45,55 @@ public class DMakerService {
     }
      */
 
+
     // final이 붙은애는 무조건 있어야 하기 때문에 final이 붙은 기본 생성자를 만들어준다.
     private final DeveloperRepository developerRepository;
     private final RetiredDeveloperRepository retiredDeveloperRepository;
     // private final EntityManager em; 데이터베이스를 추상화 한것
 //    private final EntityManager em;
 
+    private Developer createDeveloperFromRequest(CreateDeveloper.Request request) {
+        return Developer.builder()
+                .developerLevel(request.getDeveloperLevel())
+                .developerSkillType(request.getDeveloperSkillType())
+                .experienceYears(request.getExperienceYears())
+                .memberId(request.getMemberId())
+                .statusCode(StatusCode.EMPLOYED)
+                .name(request.getName())
+                .age(request.getAge())
+                .build();
+    }
+
     // 컨트롤 단에서@Valid를 실행했으므로 Service에서는 안해도됨
     // CreateDeveloper.@Valid Request request -> CreateDeveloper.Request request
     @Transactional
-    public CreateDeveloper.Response createDeveloper(CreateDeveloper.Request request){
+    public CreateDeveloper.Response createDeveloper(
+            CreateDeveloper.Request request
+    ){
         // 1.Test 시 validation 이 잘 동작하는지 검증해야한다.
         validateCreateDeveloperRequest(request);
 //        EntityTransaction transaction = em.getTransaction();
 //        try{
 //            transaction.begin();
 
-            // buisness logic start
-            Developer developer = Developer.builder()
-                    .developerLevel(request.getDeveloperLevel())
-                    .developerSkillType(request.getDeveloperSkillType())
-                    .experienceYears(request.getExperienceYears())
-                    .memberId(request.getMemberId())
-                    .statusCode(StatusCode.EMPLOYED)
-                    .name(request.getName())
-                    .age(request.getAge())
-                    .build();
-            // 2.Test 시 이곳에서 잘 저장하는지.
-            // Mock 객체가 받은 파라미터 값을 캡쳐하여 파라미터 값을 검증에 활용할 수 있다.
+            // buisness logic star
+        /*
+            다른 개발자가 이 코드를 손대게 된다면 중간에 값을 바꾸면서 복잡해질 가능성이 크다.
+            그렇기에 미리 복잡하게 되기전에 깔끔하게 만들어두자.(불확실성을 제거, 일회성 변수 제거)
+            Developer developer = createDeveloperFromRequest(request);
             developerRepository.save(developer);
             return CreateDeveloper.Response.fromEntity(developer);
+
+            아래와 같이 코드를 짜게되면 코드의 응집력이 높아지고
+            다른 개발자가 분석을 하게되면 코드에 대해 더 잘 알게되기 때문에
+            더 좋은 수정을 가능하게 할 것이다.
+        */
+        // save 메서드는 Entity 에 들어온 값을 다시 리턴해준다.
+        return CreateDeveloper.Response.fromEntity(
+                developerRepository.save(
+                        createDeveloperFromRequest(request)
+                )
+        );
 /*
              A - > B 1만원 송금
              A 계좌에서 1만원 줄임
@@ -103,7 +124,16 @@ public class DMakerService {
 
 
 
-    // Developer를 모두 가져오는 기능
+     /* Developer를 모두 가져오는 기능
+        get 이긴 하지만 혹시 나중에 추가적인 기능이 들어갔을 때를 대비해 Transactional 을 사용 그리고 도중에
+        트랜잭션 도중에 값이 변경되지 않도록 readOnly = true 를 붙여준다.
+
+        Transactional 어노테이션의 기능을 제공하는 라이브러리는 2가지가 있다.
+        import javax.transaction.Transactional;
+        import org.springframework.transaction.annotation.Transactional;
+        https://willseungh0.tistory.com/75 -> 읽기전용 트랜잭션 사용시 성능향상 이유
+     */
+    @Transactional(readOnly = true)
     public List<DeveloperDto> getAllEmployedDevelopers() {
         return developerRepository.findDevelopersByStatusCodeEquals(StatusCode.EMPLOYED)
                 .stream().map(DeveloperDto::fromEntity)
@@ -112,11 +142,28 @@ public class DMakerService {
 
     // Optional은 map함수를 지원해준다. 그 덕에 developerEntity를 detailDto로 변환이 가능하다.
     // 무언가를 썻을때에 노란색이 뜬다면 더 좋은방법을 추천해주므로 확인해보자
+    @Transactional(readOnly = true)
     public DeveloperDetailDto getAllDeveloperDetail(String memberId) {
-        return developerRepository.findByMemberId(memberId)
+        return DeveloperDetailDto.fromEntity(getDeveloperByMemberId(memberId));
+        // 아래와 같은 코드가 위와 같이된다.
+        /*return developerRepository.findByMemberId(memberId)
                 .map(DeveloperDetailDto::fromEntity)
-                .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+                .orElseThrow(() -> new DMakerException(NO_DEVELOPER));*/
         // .orElseThrow를 사용하면 데이터가 있다면 return, 없다면 Exception을 던진다.
+    }
+
+    // 개발팀마다 다르지만 강사의 팀에서는 get 은 무조건 값이 있어야 한다.
+    // 그리고 그것이 없을때에는 throw 를 날리는 방식으로 내부적으로 활용한다고 한다.
+    private Developer getDeveloperByMemberId(String memberId){
+        /*
+            JPA 에서 find 를 해서 값을 찾아올때에 값이 있을수도 있고 없을수도 있다.
+            그렇기에 Optional 에 담아서 가져온다.(null 을 담을수 있는 클래스)
+            그냥 get 만을 하는 방식은 안티패턴에 가까운 방식이라고 한다.
+            map 같은 특정 하위 함수를 사용하여 그 안에서 무언가를 진행하게하는데
+            여기서는 단순하게 값이 없다면 Exception 을 던져준다.
+         */
+        return developerRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
     }
 
     /*
@@ -124,22 +171,42 @@ public class DMakerService {
         이 메서드가 들어가기 전에 트랜잭션을 시작했다가
         디벨로퍼 엔티티에 값을 바꾸고 더티 체킹을해서 수정되는 사항이 커밋되도록 한다.
      */
+    /*
+        강사의 의견
+        스프링을 책에 비유해서 생각한다.
+        1장에 뭐, 2장에 뭐....
+        메서드도 책처럼 생각하여 목차같은 개념으로 큼직한 개념들을 담아주고
+        상세적인 부분에 private 메서드를 넣어준다.(다만 복잡한 개념은 그렇게되면 알기가 힘들다)
+     */
     @Transactional
-    public DeveloperDetailDto editDeveloper(String memberId, EditDeveloper.Request request) {
-        validateEditDeveloperRequest(request, memberId);
-
-        Developer developer = developerRepository.findByMemberId(memberId).orElseThrow(
-                () -> new DMakerException(NO_DEVELOPER)
+    public DeveloperDetailDto editDeveloper(
+            String memberId, EditDeveloper.Request request
+    ) {
+        validateDeveloperLevel(
+                request.getDeveloperLevel(), request.getExperienceYears()
         );
 
+        return DeveloperDetailDto.fromEntity(
+                getUpdatedDeveloperFromRequest(
+                        request,
+                        getDeveloperByMemberId(memberId)
+                )
+        );
+    }
+
+    private Developer getUpdatedDeveloperFromRequest(EditDeveloper.Request request, Developer developer) {
         developer.setDeveloperLevel(request.getDeveloperLevel());
         developer.setDeveloperSkillType(request.getDeveloperSkillType());
         developer.setExperienceYears(request.getExperienceYears());
 
-        return DeveloperDetailDto.fromEntity(developer);
+        return developer;
     }
 
-    private void validateCreateDeveloperRequest(CreateDeveloper.Request request) {
+    // null 이 되서는 안되는 값들에 @NonNull 을 붙여줄 수 있다 if 이런걸로 null 체크 안해도됨.
+    // 디롬복 옵션으로 롬복이 해제됬을때의 코드를 확인 가능
+    private void validateCreateDeveloperRequest(
+            @NonNull CreateDeveloper.Request request)
+    {
         /*
            business validation
            개발 레밸이 시니어면서 나이가 18세 미만이라면 예외를 던져준다.
@@ -187,16 +254,10 @@ public class DMakerService {
 
 
 
-    private void validateEditDeveloperRequest(
-            EditDeveloper.Request request,
-            String memberId) {
-        validateDeveloperLevel(
-                request.getDeveloperLevel(),
-                request.getExperienceYears()
-        );
-    }
-
-    private void validateDeveloperLevel(DeveloperLevel developerLevel, Integer experienceYears) {
+    private void validateDeveloperLevel(
+            DeveloperLevel developerLevel, Integer experienceYears
+    ) {
+        // 매직넘버, 매직스트링 이 메서드에 와서야 10, 4 를 찾을 수 있다.
         if(developerLevel == DeveloperLevel.SENIOR
                 && experienceYears < 10){
             throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
@@ -227,7 +288,9 @@ public class DMakerService {
          더티체킹 뭕 ㅣ공부해야함
      */
     @Transactional
-    public DeveloperDetailDto deleteDeveloper(String memberId) {
+    public DeveloperDetailDto deleteDeveloper(
+            String memberId
+    ) {
         // 1. EMPLOYED -> RETIRED
         Developer developer = developerRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DMakerException(NO_DEVELOPER));

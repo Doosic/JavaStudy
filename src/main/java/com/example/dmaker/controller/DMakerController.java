@@ -44,9 +44,10 @@ public class DMakerController {
     }
 
     // 현재 리스트와 상세정보를 보여주는 dto를 분리하여 사용함.
+    // 요청으로 들어온 memberId 가 바뀌면 안되기 때문에 final로 지정
     @GetMapping("/developer/{memberId}")
     public DeveloperDetailDto getDeveloperDetail(
-            @PathVariable String memberId
+            @PathVariable final String memberId
     ){
         log.info("GET /developer HTTP/1.1");
 
@@ -56,7 +57,7 @@ public class DMakerController {
     //POST맨으로 호출할 수 있지만 Intellij안에 내장되어있는걸 사용
     @PostMapping("/create-developers")
     public CreateDeveloper.Response createDevelopers(
-           @Valid @RequestBody CreateDeveloper.Request request
+           @Valid @RequestBody final CreateDeveloper.Request request
             ) {
         /*
          @Valid 바디에 들어온 값들을 담아주면서 벨리데이션을 해주고 문제가 생기면 메서드 진입전에 익셉션을 일으켜준다.
@@ -77,7 +78,7 @@ public class DMakerController {
     @PutMapping("/developer/{memberId}")
     public DeveloperDetailDto editDeveloper(
             @PathVariable String memberId,
-            @Valid @RequestBody EditDeveloper.Request request
+            @Valid @RequestBody final EditDeveloper.Request request
     ){
         log.info("GET /developer HTTP/1.1");
 
@@ -86,7 +87,7 @@ public class DMakerController {
 
     @DeleteMapping ("/developer/{memberId}")
     public DeveloperDetailDto deleteDeveloper(
-            @PathVariable String memberId
+            @PathVariable final String memberId
     ){
         log.info("GET /developer HTTP/1.1");
 

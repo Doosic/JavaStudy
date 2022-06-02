@@ -56,7 +56,7 @@ public class CreateDeveloper {
         private String memberId;
 
         // developer 값들을 받아 하나하나 뽑아서 객체를 만들어 리턴해주는 static한 메서드
-        public static Response fromEntity(Developer developer){
+        public static Response fromEntity(@NonNull Developer developer){
             return Response.builder()
                     .developerLevel(developer.getDeveloperLevel())
                     .developerSkillType(developer.getDeveloperSkillType())
