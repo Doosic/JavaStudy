@@ -1,6 +1,7 @@
 package com.example.dmaker.entity;
 
 import com.example.dmaker.code.StatusCode;
+import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.type.DeveloperLevel;
 import com.example.dmaker.type.DeveloperSkillType;
 import lombok.*;
@@ -51,4 +52,8 @@ public class Developer {
 
     @LastModifiedDate
     private LocalDateTime updateAt;
+
+    public static Developer from(CreateDeveloper.Request request){
+
+    }
 }

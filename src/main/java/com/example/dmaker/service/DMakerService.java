@@ -8,11 +8,13 @@ import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.repository.RetiredDeveloperRepository;
 import com.example.dmaker.type.DeveloperLevel;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+//import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -103,7 +105,16 @@ public class DMakerService {
 
 
 
-    // Developer를 모두 가져오는 기능
+     /* Developer를 모두 가져오는 기능
+        get 이긴 하지만 혹시 나중에 추가적인 기능이 들어갔을 때를 대비해 Transactional 을 사용 그리고 도중에
+        트랜잭션 도중에 값이 변경되지 않도록 readOnly = true 를 붙여준다.
+
+        Transactional 어노테이션의 기능을 제공하는 라이브러리는 2가지가 있다.
+        import javax.transaction.Transactional;
+        import org.springframework.transaction.annotation.Transactional;
+        https://willseungh0.tistory.com/75 -> 읽기전용 트랜잭션 사용시 성능향상 이유
+     */
+    @Transactional(readOnly = true)
     public List<DeveloperDto> getAllEmployedDevelopers() {
         return developerRepository.findDevelopersByStatusCodeEquals(StatusCode.EMPLOYED)
                 .stream().map(DeveloperDto::fromEntity)
@@ -112,6 +123,7 @@ public class DMakerService {
 
     // Optional은 map함수를 지원해준다. 그 덕에 developerEntity를 detailDto로 변환이 가능하다.
     // 무언가를 썻을때에 노란색이 뜬다면 더 좋은방법을 추천해주므로 확인해보자
+    @Transactional(readOnly = true)
     public DeveloperDetailDto getAllDeveloperDetail(String memberId) {
         return developerRepository.findByMemberId(memberId)
                 .map(DeveloperDetailDto::fromEntity)
@@ -125,8 +137,12 @@ public class DMakerService {
         디벨로퍼 엔티티에 값을 바꾸고 더티 체킹을해서 수정되는 사항이 커밋되도록 한다.
      */
     @Transactional
-    public DeveloperDetailDto editDeveloper(String memberId, EditDeveloper.Request request) {
-        validateEditDeveloperRequest(request, memberId);
+    public DeveloperDetailDto editDeveloper(
+            String memberId, EditDeveloper.Request request
+    ) {
+        validateDeveloperLevel(
+                request.getDeveloperLevel(), request.getExperienceYears()
+        );
 
         Developer developer = developerRepository.findByMemberId(memberId).orElseThrow(
                 () -> new DMakerException(NO_DEVELOPER)
@@ -138,8 +154,11 @@ public class DMakerService {
 
         return DeveloperDetailDto.fromEntity(developer);
     }
-
-    private void validateCreateDeveloperRequest(CreateDeveloper.Request request) {
+    // null 이 되서는 안되는 값들에 @NonNull 을 붙여줄 수 있다 if 이런걸로 null 체크 안해도됨.
+    // 디롬복 옵션으로 롬복이 해제됬을때의 코드를 확인 가능
+    private void validateCreateDeveloperRequest(
+            @NonNull CreateDeveloper.Request request)
+    {
         /*
            business validation
            개발 레밸이 시니어면서 나이가 18세 미만이라면 예외를 던져준다.
@@ -187,16 +206,10 @@ public class DMakerService {
 
 
 
-    private void validateEditDeveloperRequest(
-            EditDeveloper.Request request,
-            String memberId) {
-        validateDeveloperLevel(
-                request.getDeveloperLevel(),
-                request.getExperienceYears()
-        );
-    }
-
-    private void validateDeveloperLevel(DeveloperLevel developerLevel, Integer experienceYears) {
+    private void validateDeveloperLevel(
+            DeveloperLevel developerLevel, Integer experienceYears
+    ) {
+        // 매직넘버, 매직스트링 이 메서드에 와서야 10, 4 를 찾을 수 있다.
         if(developerLevel == DeveloperLevel.SENIOR
                 && experienceYears < 10){
             throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
@@ -227,7 +240,9 @@ public class DMakerService {
          더티체킹 뭕 ㅣ공부해야함
      */
     @Transactional
-    public DeveloperDetailDto deleteDeveloper(String memberId) {
+    public DeveloperDetailDto deleteDeveloper(
+            String memberId
+    ) {
         // 1. EMPLOYED -> RETIRED
         Developer developer = developerRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DMakerException(NO_DEVELOPER));

@@ -28,3 +28,28 @@
     - 도전적인 부분
         - 새로운 기술로 성능 향상이나 유지보수성이 향상이 가능한 부분
         - (기존도 나쁘지 않지만) 더 좋은 구성 방법이 생각나는 부분
+
+
+* 개선 방법
+    - DMakerController 에 getDeveloperDetail() 과 같이
+      요청을 받는 값들 String memberId 는 바뀌면 안되기 때문에 final 로 지정해주어야 한다.
+
+    - get 메서드이긴 하지만 혹시 나중에 추가적인 기능이 들어갔을 때를 대비해 Transactional 을 사용 그리고 도중에
+      트랜잭션 도중에 값이 변경되지 않도록 readOnly = true 를 붙여준다.
+        - Transactional 어노테이션의 기능을 제공하는 라이브러리는 2가지가 있다.
+              - import javax.transaction.Transactional;
+              - import org.springframework.transaction.annotation.Transactional;
+              - https://willseungh0.tistory.com/75 -> 읽기전용 트랜잭션 사용시 성능향상 이유
+
+    - 수정시 무언가의 정보를 수정한다면, 이전의 정보가 있어야한다. 그때마다
+      무언가가 존재하는지를 먼저 체크해야하고, 없다면 Exception 을 던져주어야 한다.
+      근데 그렇게되면 공통적인 Exception 을 던지는 코드가 늘어난다. 이런 부분을 줄여야 한다.
+
+    - 매개변수로 들어오는 값들중 null 이 되서는 안되는 값들에 @NonNull 을 붙여줄 수 있다. if 문으로 null 체크 안해도됨.
+
+    - 매직넘버(해당 메서드에 고정으로 박아둔 숫자, 그렇기에 해당 메서드를 찾아가야만 알 수 있다)
+      상수로 지정하던지, 매개변수로 받자
+
+    - 코딩 컨벤션 (팀원들간의 코드 스타일을 지키는것)
+
+    - 자주 사용되는 부분을 변수로 사용하거나, 메서드로 만드는것.
