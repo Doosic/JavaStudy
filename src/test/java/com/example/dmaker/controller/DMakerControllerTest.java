@@ -14,13 +14,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 /*
     @WebMvcTest()
-    컨트롤러 관련 빈들만 활성화 시켜서 사용할 수 있다.
+    컨트롤러 관련 Bean 들만 활성화 시켜서 사용할 수 있다.
     괄호안에 클래스명을 적어주면 해당 클래스만 띄울수 있다.
     그러나 해당 클래스를 띄우는데 필요한 클래스는 기본적으로 올려준다.
  */
@@ -66,6 +67,7 @@ class DMakerControllerTest {
          */
         mockMvc.perform(get("/developers").contentType(contentType))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andExpect(
                         jsonPath("$.[0].developerSkillType",
                                 is(DeveloperSkillType.BACK_END.name()))
@@ -73,9 +75,6 @@ class DMakerControllerTest {
                         jsonPath("$.[1].developerSkillType",
                                 is(DeveloperSkillType.FRONT_END.name()))
                 );
-
-
-
   }
 
 }

@@ -3,21 +3,16 @@ package com.example.dmaker.service;
 import com.example.dmaker.code.StatusCode;
 import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.dto.DeveloperDetailDto;
-import com.example.dmaker.dto.DeveloperDto;
 import com.example.dmaker.entity.Developer;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.repository.RetiredDeveloperRepository;
-import com.example.dmaker.type.DeveloperLevel;
-import com.example.dmaker.type.DeveloperSkillType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.example.dmaker.type.DeveloperLevel.SENIOR;
@@ -25,6 +20,8 @@ import static com.example.dmaker.type.DeveloperSkillType.FRONT_END;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 //@SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +56,24 @@ class DMakerServiceTest {
     @InjectMocks
     private DMakerService dMakerService;
 
+    private Developer developer = Developer.builder()
+            .developerLevel(SENIOR)
+                    .developerSkillType(FRONT_END)
+                    .experienceYears(12)
+                    .statusCode(StatusCode.EMPLOYED)
+                    .name("name")
+                    .age(22)
+                    .build();
+
+    private final CreateDeveloper.Request defaultCreateRequest = CreateDeveloper.Request.builder()
+            .developerLevel(SENIOR)
+            .developerSkillType(FRONT_END)
+            .experienceYears(12)
+            .memberId("memberId")
+            .name("name")
+            .age(22)
+            .build();
+
     @Test
     public void testSomething(){
         /*
@@ -69,14 +84,7 @@ class DMakerServiceTest {
             미리 어떤 동작을 할 지 정의해 두는것이다.
         */
         given(developerRepository.findByMemberId(anyString()))
-            .willReturn(Optional.of(Developer.builder()
-                    .developerLevel(SENIOR)
-                    .developerSkillType(FRONT_END)
-                    .experienceYears(12)
-                    .statusCode(StatusCode.EMPLOYED)
-                    .name("name")
-                    .age(22)
-                    .build()));
+            .willReturn(Optional.of(developer));
         DeveloperDetailDto developerDetail = dMakerService.getAllDeveloperDetail("memberId");
 
         assertEquals(SENIOR, developerDetail.getDeveloperLevel());
@@ -116,4 +124,67 @@ class DMakerServiceTest {
         System.out.println("======================================");
     }
 */
+
+    @Test
+    void createDeveloperTest_success(){
+        //given
+        //지역변수 및 테스트에 활용될 메서드들을 만들어둔다
+        given(developerRepository.findByMemberId(anyString()))
+                .willReturn(Optional.empty());
+        // ArgumentCaptor<저장하게 될 타입>
+        // create 할 때에는 ArgumentCaptor 를 통해 저장되는 데이터를 가져올 수 있다.
+        ArgumentCaptor<Developer> captor =
+                ArgumentCaptor.forClass(Developer.class);
+
+        //-when
+        //테스트하고자 하는 동작과 그 동작의 결과값, 테스트하며 Mocking 해야 할 지점을 찾아가야한다.
+        CreateDeveloper.Response developer = dMakerService.createDeveloper(defaultCreateRequest);
+/*
+        -then
+        예상한 동작대로 동작하는지 검증하는 단계
+        검증해야 할것 = Service 단의 로직을 validation 이라던지 save 라던지.
+        verify = 특정 Mock 이 몇번 호출됬는지 검증을 해준다.
+        import static org.mockito.Mockito.times;
+        import static org.mockito.Mockito.verify;
+*/
+        verify(developerRepository, times(1))
+                .save(captor.capture());
+        // 캡쳐된 결과를 꺼낼 수 있다.
+        Developer savedDeveloper = captor.getValue();
+        assertEquals(SENIOR, savedDeveloper.getDeveloperLevel());
+        assertEquals(FRONT_END, savedDeveloper.getDeveloperSkillType());
+        assertEquals(12, savedDeveloper.getExperienceYears());
+    }
+
+    // 16분 49초까지 들었음.
+    @Test
+    void createDeveloperTest_failed_with_duplicated(){
+        //given
+        //지역변수 및 테스트에 활용될 메서드들을 만들어둔다
+        given(developerRepository.findByMemberId(anyString()))
+                .willReturn(Optional.of(developer));
+        // ArgumentCaptor<저장하게 될 타입>
+        // create 할 때에는 ArgumentCaptor 를 통해 저장되는 데이터를 가져올 수 있다.
+        ArgumentCaptor<Developer> captor =
+                ArgumentCaptor.forClass(Developer.class);
+
+        //-when
+        //테스트하고자 하는 동작과 그 동작의 결과값, 테스트하며 Mocking 해야 할 지점을 찾아가야한다.
+        CreateDeveloper.Response developer = dMakerService.createDeveloper(defaultCreateRequest);
+/*
+        -then
+        예상한 동작대로 동작하는지 검증하는 단계
+        검증해야 할것 = Service 단의 로직을 validation 이라던지 save 라던지.
+        verify = 특정 Mock 이 몇번 호출됬는지 검증을 해준다.
+        import static org.mockito.Mockito.times;
+        import static org.mockito.Mockito.verify;
+*/
+        verify(developerRepository, times(1))
+                .save(captor.capture());
+        // 캡쳐된 결과를 꺼낼 수 있다.
+        Developer savedDeveloper = captor.getValue();
+        assertEquals(SENIOR, savedDeveloper.getDeveloperLevel());
+        assertEquals(FRONT_END, savedDeveloper.getDeveloperSkillType());
+        assertEquals(12, savedDeveloper.getExperienceYears());
+    }
 }
