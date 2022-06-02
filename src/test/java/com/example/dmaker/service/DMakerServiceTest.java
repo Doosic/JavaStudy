@@ -3,6 +3,7 @@ package com.example.dmaker.service;
 import com.example.dmaker.code.StatusCode;
 import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.dto.DeveloperDetailDto;
+import com.example.dmaker.dto.EditDeveloper;
 import com.example.dmaker.entity.Developer;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.repository.RetiredDeveloperRepository;
@@ -15,7 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static com.example.dmaker.type.DeveloperLevel.JUNGNIOR;
 import static com.example.dmaker.type.DeveloperLevel.SENIOR;
+import static com.example.dmaker.type.DeveloperSkillType.BACK_END;
 import static com.example.dmaker.type.DeveloperSkillType.FRONT_END;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -74,6 +77,12 @@ class DMakerServiceTest {
             .age(22)
             .build();
 
+    private final EditDeveloper.Request defaultEditRequest = EditDeveloper.Request.builder()
+            .developerLevel(SENIOR)
+            .developerSkillType(BACK_END)
+            .experienceYears(12)
+            .build();
+
     @Test
     public void testSomething(){
         /*
@@ -124,6 +133,37 @@ class DMakerServiceTest {
         System.out.println("======================================");
     }
 */
+
+    @Test
+    void editDeveloperTest_success(){
+        /*
+             given : 테스트 메서드에다가 시나리오 진행에 필요한 조건을 미리 설정해두는 단계이다.
+             * willReturn : 메서드가 호출될 때 반환될 값을 설정합니다.
+             * OptionalClass : Null이나 Null이 아닌 값을 담을 수 있다. Wrapper 클래스이며, 참조하더라도 NPE가 발생하지 않도록 도와준다.
+                    - Optional.empty() : 빈 Optional 객체를 생성한다.
+                    - Optional.ofNullable(developer) : value가 null인 경우 비어있는 Optional을 반환한다. 값이 null일수도 있는 것에 사용
+
+             1. DMakerService에 editDeveloper() 를 보면 validation이 가장먼저 진행되지만 특별한 조회가 없다.
+             2. 개발자를 수정하기 위해서는 해당하는 개발자가 있는지 조회를 해야한다.
+                    - 개발자가 있는지 조회를 하기 위해서 해당 개발자를 생성하여준다.
+             3. 개발자의 정보를 수정해준다. editDeveloper은 memberId와 수정될 RequestValue값을 매개변수로 받는다.
+             4. 개발자의 정보가 원하는대로 수정되었는지 확인한다.
+
+        */
+        // 2번에 해당. 개발자 조회시 value가 있을수도 있고 null일수도 있기에 ofNullable을 사용
+        given(developerRepository.findByMemberId(anyString()))
+                .willReturn(Optional.ofNullable(developer));
+
+
+        // 3번에 해당. 개발자의 정보를 수정해준다. 수정후에는 수정된 개발자를 return 해준다.
+        DeveloperDetailDto editDeveloperValue = dMakerService.editDeveloper(anyString(), defaultEditRequest);
+
+        // 4번에 해당. 수정된 정보를 가진 개발자의 정보를 확인한다.
+        assertEquals(SENIOR, editDeveloperValue.getDeveloperLevel());
+        assertEquals(BACK_END, editDeveloperValue.getDeveloperSkillType());
+        assertEquals(12, editDeveloperValue.getExperienceYears());
+    }
+
 
     @Test
     void createDeveloperTest_success(){
