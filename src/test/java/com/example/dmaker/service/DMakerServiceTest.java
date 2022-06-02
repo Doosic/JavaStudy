@@ -5,6 +5,8 @@ import com.example.dmaker.dto.CreateDeveloper;
 import com.example.dmaker.dto.DeveloperDetailDto;
 import com.example.dmaker.dto.EditDeveloper;
 import com.example.dmaker.entity.Developer;
+import com.example.dmaker.exception.DMakerErrorCode;
+import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.repository.RetiredDeveloperRepository;
 import org.junit.jupiter.api.Test;
@@ -173,6 +175,7 @@ class DMakerServiceTest {
                 .willReturn(Optional.empty());
         // ArgumentCaptor<저장하게 될 타입>
         // create 할 때에는 ArgumentCaptor 를 통해 저장되는 데이터를 가져올 수 있다.
+        // DB에 저장하는 데이터나 외부 API 로 호출을 날릴때에 데이터가 어떤것이 날아가는지 확인하고 싶을때에 captor 을 사용한다.
         ArgumentCaptor<Developer> captor =
                 ArgumentCaptor.forClass(Developer.class);
 
@@ -187,6 +190,7 @@ class DMakerServiceTest {
         import static org.mockito.Mockito.times;
         import static org.mockito.Mockito.verify;
 */
+        // api 나 db에 저장되는 데이터를 이곳에서 받아서 꺼내 확인할 수 있다.
         verify(developerRepository, times(1))
                 .save(captor.capture());
         // 캡쳐된 결과를 꺼낼 수 있다.
@@ -196,7 +200,7 @@ class DMakerServiceTest {
         assertEquals(12, savedDeveloper.getExperienceYears());
     }
 
-    // 16분 49초까지 들었음.
+    // Exception 검증.
     @Test
     void createDeveloperTest_failed_with_duplicated(){
         //given
@@ -205,12 +209,12 @@ class DMakerServiceTest {
                 .willReturn(Optional.of(developer));
         // ArgumentCaptor<저장하게 될 타입>
         // create 할 때에는 ArgumentCaptor 를 통해 저장되는 데이터를 가져올 수 있다.
-        ArgumentCaptor<Developer> captor =
-                ArgumentCaptor.forClass(Developer.class);
+//        ArgumentCaptor<Developer> captor =
+//                ArgumentCaptor.forClass(Developer.class);
 
         //-when
         //테스트하고자 하는 동작과 그 동작의 결과값, 테스트하며 Mocking 해야 할 지점을 찾아가야한다.
-        CreateDeveloper.Response developer = dMakerService.createDeveloper(defaultCreateRequest);
+//        CreateDeveloper.Response developer = dMakerService.createDeveloper(defaultCreateRequest);
 /*
         -then
         예상한 동작대로 동작하는지 검증하는 단계
@@ -219,12 +223,22 @@ class DMakerServiceTest {
         import static org.mockito.Mockito.times;
         import static org.mockito.Mockito.verify;
 */
-        verify(developerRepository, times(1))
+        // # assertThrows 처음 값으로 예상되는 exception 의 클래스의 종류를 받고 던지게될 동작을 받는다.
+        // Exception 을 던지는것을 검증하는 단계. 실패한것을 검증하는 것이다.
+        DMakerException dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(defaultCreateRequest));
+
+        /*
+               테스트가 실패하게되면 왼쪽 하단에 !가 나오게됨. x 가 나와야하는데
+         */
+        assertEquals(DMakerErrorCode.DUPLICATED_MEMBER_ID, dMakerException.getDMakerErrorCode());
+
+/*        verify(developerRepository, times(1))
                 .save(captor.capture());
         // 캡쳐된 결과를 꺼낼 수 있다.
         Developer savedDeveloper = captor.getValue();
         assertEquals(SENIOR, savedDeveloper.getDeveloperLevel());
         assertEquals(FRONT_END, savedDeveloper.getDeveloperSkillType());
-        assertEquals(12, savedDeveloper.getExperienceYears());
+        assertEquals(12, savedDeveloper.getExperienceYears());*/
     }
 }
