@@ -23,6 +23,7 @@ import static com.example.dmaker.type.DeveloperLevel.SENIOR;
 import static com.example.dmaker.type.DeveloperSkillType.BACK_END;
 import static com.example.dmaker.type.DeveloperSkillType.FRONT_END;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -61,7 +62,7 @@ class DMakerServiceTest {
     @InjectMocks
     private DMakerService dMakerService;
 
-    private Developer developer = Developer.builder()
+    private Developer defaultDeveloper = Developer.builder()
             .developerLevel(SENIOR)
                     .developerSkillType(FRONT_END)
                     .experienceYears(12)
@@ -95,7 +96,7 @@ class DMakerServiceTest {
             미리 어떤 동작을 할 지 정의해 두는것이다.
         */
         given(developerRepository.findByMemberId(anyString()))
-            .willReturn(Optional.of(developer));
+            .willReturn(Optional.of(defaultDeveloper));
         DeveloperDetailDto developerDetail = dMakerService.getAllDeveloperDetail("memberId");
 
         assertEquals(SENIOR, developerDetail.getDeveloperLevel());
@@ -154,7 +155,7 @@ class DMakerServiceTest {
         */
         // 2번에 해당. 개발자 조회시 value가 있을수도 있고 null일수도 있기에 ofNullable을 사용
         given(developerRepository.findByMemberId(anyString()))
-                .willReturn(Optional.ofNullable(developer));
+                .willReturn(Optional.ofNullable(defaultDeveloper));
 
 
         // 3번에 해당. 개발자의 정보를 수정해준다. 수정후에는 수정된 개발자를 return 해준다.
@@ -173,6 +174,9 @@ class DMakerServiceTest {
         //지역변수 및 테스트에 활용될 메서드들을 만들어둔다
         given(developerRepository.findByMemberId(anyString()))
                 .willReturn(Optional.empty());
+
+        given(developerRepository.save(any()))
+                .willReturn(defaultDeveloper);
         // ArgumentCaptor<저장하게 될 타입>
         // create 할 때에는 ArgumentCaptor 를 통해 저장되는 데이터를 가져올 수 있다.
         // DB에 저장하는 데이터나 외부 API 로 호출을 날릴때에 데이터가 어떤것이 날아가는지 확인하고 싶을때에 captor 을 사용한다.
@@ -181,7 +185,7 @@ class DMakerServiceTest {
 
         //-when
         //테스트하고자 하는 동작과 그 동작의 결과값, 테스트하며 Mocking 해야 할 지점을 찾아가야한다.
-        CreateDeveloper.Response developer = dMakerService.createDeveloper(defaultCreateRequest);
+        dMakerService.createDeveloper(defaultCreateRequest);
 /*
         -then
         예상한 동작대로 동작하는지 검증하는 단계
@@ -206,7 +210,7 @@ class DMakerServiceTest {
         //given
         //지역변수 및 테스트에 활용될 메서드들을 만들어둔다
         given(developerRepository.findByMemberId(anyString()))
-                .willReturn(Optional.of(developer));
+                .willReturn(Optional.of(defaultDeveloper));
         // ArgumentCaptor<저장하게 될 타입>
         // create 할 때에는 ArgumentCaptor 를 통해 저장되는 데이터를 가져올 수 있다.
 //        ArgumentCaptor<Developer> captor =

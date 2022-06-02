@@ -53,3 +53,89 @@
     - 코딩 컨벤션 (팀원들간의 코드 스타일을 지키는것)
 
     - 자주 사용되는 부분을 변수로 사용하거나, 메서드로 만드는것.
+
+
+* 개선 지점
+    - Service 에서 값을 저장하는 부분에 다음과같은 builder 패턴을 사용한 로직이 들어가있다.
+      * 방법 1
+      - 정답은 없으나 이 코드를 Entity 로 넣어서 사용하는 방법이 있다.
+        그러나 Entity 는 DB 와의 연동 ORM 을 위한 클래스이기 때문에 이곳에 메서드가 들어가는건 바람직하지 않다.
+        거기다 단지 CreateDeveloper 을 위한 메서드일뿐이다.
+      Developer developer = Developer.builder()
+                        .developerLevel(request.getDeveloperLevel())
+                        .developerSkillType(request.getDeveloperSkillType())
+                        .experienceYears(request.getExperienceYears())
+                        .memberId(request.getMemberId())
+                        .statusCode(StatusCode.EMPLOYED)
+                        .name(request.getName())
+                        .age(request.getAge())
+                        .build();
+
+      - Entity 에 from 이라는 메서드를 작성
+      public static Developer from(CreateDeveloper.Request request){
+              return Developer.builder()
+                      .developerLevel(request.getDeveloperLevel())
+                      .developerSkillType(request.getDeveloperSkillType())
+                      .experienceYears(request.getExperienceYears())
+                      .memberId(request.getMemberId())
+                      .statusCode(StatusCode.EMPLOYED)
+                      .name(request.getName())
+                      .age(request.getAge())
+                      .build();
+          }
+
+      - service 에서 다음과 같이 사용
+      Developer developer = Developer.from(request);
+      developerRepository.save(developer);
+      return CreateDeveloper.Response.fromEntity(developer);
+
+      * 방법 2
+      -service 단에 메서드로 만들어 사용한다.
+      private Developer createDeveloperFromRequest(CreateDeveloper.Request request) {
+              return Developer.builder()
+                      .developerLevel(request.getDeveloperLevel())
+                      .developerSkillType(request.getDeveloperSkillType())
+                      .experienceYears(request.getExperienceYears())
+                      .memberId(request.getMemberId())
+                      .statusCode(StatusCode.EMPLOYED)
+                      .name(request.getName())
+                      .age(request.getAge())
+                      .build();
+          }
+
+      - 다음과 같이 사용할 수 있게 되었다.
+      return CreateDeveloper.Response.fromEntity(
+                      developerRepository.save(
+                              createDeveloperFromRequest(request)
+                      )
+              );
+
+
+    - 예외처리에 대한 공통 로직
+      * 방법 1
+     private Developer getDeveloperByMemberId(String memberId){
+            /*
+                JPA 에서 find 를 해서 값을 찾아올때에 값이 있을수도 있고 없을수도 있다.
+                그렇기에 Optional 에 담아서 가져온다.(null 을 담을수 있는 클래스)
+                그냥 get 만을 하는 방식은 안티패턴에 가까운 방식이라고 한다.
+                map 같은 특정 하위 함수를 사용하여 그 안에서 무언가를 진행하게하는데
+                여기서는 단순하게 값이 없다면 Exception 을 던져준다.
+             */
+            return developerRepository.findByMemberId(memberId)
+                    .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+        }
+
+      * 결과물
+       - 전
+       @Transactional(readOnly = true)
+                 public DeveloperDetailDto getAllDeveloperDetail(String memberId) {
+                    return developerRepository.findByMemberId(memberId)
+                            .map(DeveloperDetailDto::fromEntity)
+                            .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+        }
+
+       - 후
+       @Transactional(readOnly = true)
+          public DeveloperDetailDto getAllDeveloperDetail(String memberId) {
+              return DeveloperDetailDto.fromEntity(getDeveloperByMemberId(memberId));
+          }
