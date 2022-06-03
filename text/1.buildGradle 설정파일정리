@@ -12,7 +12,7 @@
     runtimeOnly 'com.h2database:h2'
 
     - JPA
-    JPA 를 사용하기 위해 추가해주자.
+    JPA 를 사용하기 위한 모든 의존성들을 추가해준다.
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     - Test
