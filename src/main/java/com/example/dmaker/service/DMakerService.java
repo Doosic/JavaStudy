@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.dmaker.constant.DMakerConstant.MAX_JUNIOR_EXPERIENCE_YEARS;
+import static com.example.dmaker.constant.DMakerConstant.MIN_SENIOR_EXPERIENCE_YEARS;
 import static com.example.dmaker.exception.DMakerErrorCode.*;
 
 @Slf4j
@@ -258,16 +260,19 @@ public class DMakerService {
             DeveloperLevel developerLevel, Integer experienceYears
     ) {
         // 매직넘버, 매직스트링 이 메서드에 와서야 10, 4 를 찾을 수 있다.
-        if(developerLevel == DeveloperLevel.SENIOR
-                && experienceYears < 10){
+        /*
+            Enum 정리
+            validateDeveloperLevel(SENIOR, 10) 이런 식으로 호출 했을때에
+            developerLevel 에는 SENIOR 이 넘어왔으므로 SENIOR.getMaxExperienceYears()
+            가 되는 것이다.
+
+            그리고 Enum 클래스에 정의된 SENIOR 은 이러하다.
+            Constant.class = MIN_SENIOR_EXPERIENCE_YEARS = 10;
+            SENIOR("신입 개발자", MIN_SENIOR_EXPERIENCE_YEARS, 70)
+         */
+        if(experienceYears < developerLevel.getMaxExperienceYears() ||
+                experienceYears > developerLevel.getMaxExperienceYears()){
             throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
-        }
-        if(developerLevel == DeveloperLevel.JUNGNIOR
-                &&(experienceYears < 4 || experienceYears > 10)){
-            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
-        }
-        if(developerLevel == DeveloperLevel.JUNGNIOR && experienceYears > 4){
-            throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
         }
     }
     /*
