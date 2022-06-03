@@ -6,7 +6,7 @@
 요번 강의에서 들은 내용들을 정리로 토대로한 프로젝트 구조이다.
 
 -main
-    - com.fc_study.raisingPokemon
+    - com.fc_study.monsterGrowth
         - code
         - config
         - dto

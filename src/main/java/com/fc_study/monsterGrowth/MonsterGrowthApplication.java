@@ -1,13 +1,13 @@
-package com.fc_study.raisingPokemon;
+package com.fc_study.monsterGrowth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RaisingPokemonApplication {
+public class MonsterGrowthApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RaisingPokemonApplication.class, args);
+        SpringApplication.run(MonsterGrowthApplication.class, args);
     }
 
 }
