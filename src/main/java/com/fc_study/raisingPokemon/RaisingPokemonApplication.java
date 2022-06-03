@@ -1,4 +1,4 @@
-package com.fc_study.raisingpokemon;
+package com.fc_study.raisingPokemon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

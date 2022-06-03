@@ -1,0 +1,15 @@
+* H2database 란?
+    - 메모리 db 로 주로 사용된다.
+      따로 오라클, MySql 과 같이 따로 설치해야하는 것이 아니라
+      애플리케이션과 함께 8080 포트를 사용하여 H2DB 를 띄울수 있다.
+
+      단점으로는 메모리에 저장되기 때문에 애플리케이션 서비스가 시작될때에 같이 시작되었다가
+      서비스가 죽을때에 모든 데이터가 사라진다.
+
+    - 사용 방법
+    1.application.yml 파일에 console 로 볼수 있는 설정을 해준다. (2번 text 파일 참고)
+    2.스프링 부트를 start 할때에 다음과 같은 내용을 찾아준다.
+        H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:854d5f27-effe-4355-b0e3-420faa721b1f'
+    3.주소 : http://localhost:8080/h2-console 로 접속하여준다.
+    4.JDBC URL 에 위의 주소를 입력한다. :  jdbc:h2:mem:854d5f27-effe-4355-b0e3-420faa721b1f
+    5.커넥트 버튼을 누르면 메모리에 떠있는 DB에 접근이 된다.

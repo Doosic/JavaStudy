@@ -1,4 +1,4 @@
-package com.fc_study.raisingpokemon;
+package com.fc_study.raisingokemon;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
