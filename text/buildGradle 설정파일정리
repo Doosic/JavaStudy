@@ -9,3 +9,17 @@
 
     - h2database
     runtimeOnly : 컴파일 시점에는 사용되지 않고, 실행시점에만 사용된다.
+    runtimeOnly 'com.h2database:h2'
+
+    - JPA
+    JPA 를 사용하기 위해 추가해주자.
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    - Test
+    테스트에 필요한 여러가지 라이브러리들이 들어간다. (Junit, Mockito 등...)
+    testImplementation : 테스트 코드를 수행할 때에만 사용
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    가독성있는 테스트코드를 만들수 있게 도와주는 hamcrest 라이브러리이다.(Junit4 에는 포함되었지만 Junit5 에서는 제외되었다)
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+
+
