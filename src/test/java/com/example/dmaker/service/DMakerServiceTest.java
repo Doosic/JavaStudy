@@ -9,6 +9,8 @@ import com.example.dmaker.exception.DMakerErrorCode;
 import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.repository.DeveloperRepository;
 import com.example.dmaker.repository.RetiredDeveloperRepository;
+import com.example.dmaker.type.DeveloperLevel;
+import com.example.dmaker.type.DeveloperSkillType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,8 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static com.example.dmaker.type.DeveloperLevel.JUNGNIOR;
-import static com.example.dmaker.type.DeveloperLevel.SENIOR;
+import static com.example.dmaker.constant.DMakerConstant.MAX_JUNIOR_EXPERIENCE_YEARS;
+import static com.example.dmaker.constant.DMakerConstant.MIN_SENIOR_EXPERIENCE_YEARS;
+import static com.example.dmaker.exception.DMakerErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATCHED;
+import static com.example.dmaker.type.DeveloperLevel.*;
 import static com.example.dmaker.type.DeveloperSkillType.BACK_END;
 import static com.example.dmaker.type.DeveloperSkillType.FRONT_END;
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,14 +75,26 @@ class DMakerServiceTest {
                     .age(22)
                     .build();
 
-    private final CreateDeveloper.Request defaultCreateRequest = CreateDeveloper.Request.builder()
-            .developerLevel(SENIOR)
-            .developerSkillType(FRONT_END)
-            .experienceYears(12)
+    /*
+        원래는 final로 지정하여 사용하였으나 그렇게 된다면
+        다양하게 여러곳에서 사용할때에 문제가 되기 때문에 매개변수를 받아 사용하는 방식으로 전환
+        이걸 수정에도 공통적으로 사용할 수 있지 않을까?
+        모든 값이 바뀌어서는 안되기 때문에 일정 값들만 들어가야겠지만 잘 생각해보면 될듯?
+     */
+    private CreateDeveloper.Request getCreateRequest(
+            DeveloperLevel developerLevel,
+            DeveloperSkillType developerSkillType,
+            Integer experienceYears
+    ){
+            return CreateDeveloper.Request.builder()
+            .developerLevel(developerLevel)
+            .developerSkillType(developerSkillType)
+            .experienceYears(experienceYears)
             .memberId("memberId")
             .name("name")
             .age(22)
             .build();
+    }
 
     private final EditDeveloper.Request defaultEditRequest = EditDeveloper.Request.builder()
             .developerLevel(SENIOR)
@@ -185,7 +201,7 @@ class DMakerServiceTest {
 
         //-when
         //테스트하고자 하는 동작과 그 동작의 결과값, 테스트하며 Mocking 해야 할 지점을 찾아가야한다.
-        dMakerService.createDeveloper(defaultCreateRequest);
+        dMakerService.createDeveloper(getCreateRequest(SENIOR, FRONT_END, MIN_SENIOR_EXPERIENCE_YEARS));
 /*
         -then
         예상한 동작대로 동작하는지 검증하는 단계
@@ -202,6 +218,66 @@ class DMakerServiceTest {
         assertEquals(SENIOR, savedDeveloper.getDeveloperLevel());
         assertEquals(FRONT_END, savedDeveloper.getDeveloperSkillType());
         assertEquals(12, savedDeveloper.getExperienceYears());
+    }
+
+    // Exception 이 잘나오는지 확인하는 테스트
+    @Test
+    void createDeveloperTest_fail_low_senior(){
+        //given
+        // when
+        // then
+        DMakerException dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(SENIOR, FRONT_END, MIN_SENIOR_EXPERIENCE_YEARS-1)
+                )
+        );
+
+        assertEquals(
+                LEVEL_EXPERIENCE_YEARS_NOT_MATCHED,
+                dMakerException.getDMakerErrorCode()
+        );
+    }
+
+    @Test
+    void createDeveloperTest_fail_with_unmatched_level(){
+        //given
+        // when
+        // then
+        DMakerException dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(JUNIOR, FRONT_END,
+                                MAX_JUNIOR_EXPERIENCE_YEARS + 1)
+                )
+        );
+
+        assertEquals(
+                LEVEL_EXPERIENCE_YEARS_NOT_MATCHED,
+                dMakerException.getDMakerErrorCode()
+        );
+
+        dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(JUNGNIOR, FRONT_END,
+                                MIN_SENIOR_EXPERIENCE_YEARS + 1)
+                )
+        );
+
+        assertEquals(
+                LEVEL_EXPERIENCE_YEARS_NOT_MATCHED,
+                dMakerException.getDMakerErrorCode()
+        );
+
+        dMakerException = assertThrows(DMakerException.class,
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(SENIOR, FRONT_END,
+                                MIN_SENIOR_EXPERIENCE_YEARS - 1)
+                )
+        );
+
+        assertEquals(
+                LEVEL_EXPERIENCE_YEARS_NOT_MATCHED,
+                dMakerException.getDMakerErrorCode()
+        );
     }
 
     // Exception 검증.
@@ -230,7 +306,10 @@ class DMakerServiceTest {
         // # assertThrows 처음 값으로 예상되는 exception 의 클래스의 종류를 받고 던지게될 동작을 받는다.
         // Exception 을 던지는것을 검증하는 단계. 실패한것을 검증하는 것이다.
         DMakerException dMakerException = assertThrows(DMakerException.class,
-                () -> dMakerService.createDeveloper(defaultCreateRequest));
+                () -> dMakerService.createDeveloper(
+                        getCreateRequest(SENIOR, FRONT_END, MIN_SENIOR_EXPERIENCE_YEARS)
+                )
+        );
 
         /*
                테스트가 실패하게되면 왼쪽 하단에 !가 나오게됨. x 가 나와야하는데
