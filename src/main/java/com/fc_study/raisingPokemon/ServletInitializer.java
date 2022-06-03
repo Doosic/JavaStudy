@@ -1,4 +1,4 @@
-package com.fc_study.raisingpokemon;
+package com.fc_study.raisingPokemon;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
