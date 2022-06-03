@@ -4,3 +4,7 @@ Service
 Entity
 dto
 type
+
+DAO란?
+단순하게 페이지를 불러오고 DB정보를 한번에 불러오는 간단한 프로젝트의 경우 Service와 DAO는 차이가 거의 없을 수 있다고 합니다.
+DAO 는 쉽게 말해서 Mysql 서버에 접근하여 SQL문을 실행할 수 있는 객체입니다.
