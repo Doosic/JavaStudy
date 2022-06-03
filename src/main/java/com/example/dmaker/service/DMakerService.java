@@ -184,8 +184,8 @@ public class DMakerService {
     public DeveloperDetailDto editDeveloper(
             String memberId, EditDeveloper.Request request
     ) {
-        validateDeveloperLevel(
-                request.getDeveloperLevel(), request.getExperienceYears()
+        request.getDeveloperLevel().ValidateExperienceYears(
+                request.getExperienceYears()
         );
 
         return DeveloperDetailDto.fromEntity(
@@ -237,9 +237,14 @@ public class DMakerService {
               throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
           }
          */
-        validateDeveloperLevel(
-                request.getDeveloperLevel(),
-                request.getExperienceYears());
+        /*
+            SENIOR.ValidateExperienceYears 는 Enum 클래스에 function 으로 사용되고있다.
+            Function<Integer, Boolean> 으로 Integer 타입을 받아서 Boolean 으로 리턴해주고 있다.
+            날짜를 받아서 조건식을 확인하고 true, false로 리턴.
+        */
+        request.getDeveloperLevel().ValidateExperienceYears(
+                request.getExperienceYears()
+        );
 
        developerRepository.findByMemberId(request.getMemberId())
                .ifPresent((developer -> {
@@ -255,7 +260,7 @@ public class DMakerService {
 
 
 
-
+    // 예외처리 Enum 클래스를 통해 아래의 메서드가 필요가 없게되었다.
     private void validateDeveloperLevel(
             DeveloperLevel developerLevel, Integer experienceYears
     ) {
@@ -270,10 +275,12 @@ public class DMakerService {
             Constant.class = MIN_SENIOR_EXPERIENCE_YEARS = 10;
             SENIOR("신입 개발자", MIN_SENIOR_EXPERIENCE_YEARS, 70)
          */
-        if(experienceYears < developerLevel.getMaxExperienceYears() ||
-                experienceYears > developerLevel.getMaxExperienceYears()){
-            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
-        }
+        // 고급화 전략을 통해 한줄로 끝나게 되었다.
+        developerLevel.ValidateExperienceYears(experienceYears);
+//        if(experienceYears < developerLevel.getMaxExperienceYears() ||
+//                experienceYears > developerLevel.getMaxExperienceYears()){
+//            throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+//        }
     }
     /*
          DB의 데이터가 수정되는 상황에 있어
