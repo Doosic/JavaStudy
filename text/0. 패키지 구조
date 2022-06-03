@@ -20,3 +20,46 @@
         - controller
         - dto
         - service
+
+*패키지 별 역할
+    -dto
+    DTO(Data Transfer Object)란 계층간 데이터 교환을 위해 사용하는 객체(Java Bean)이다.
+    클라이언트 요청에 포함된 데이터를 담아 서버 측에 전달하고, 서버 측의 응답 데이터를 담아 클라이언트에 전달하는
+    계층간 전달자 역할이다.
+
+    - dto 를 사용하는 이유.
+    dto 를 사용하지 않고 Entity 에 있는 데이터를 그대로 view 에 넘겨주게 된다면
+    불필요한 데이터 또는 넘기지 말아야 할 데이터를 넘길수 있기 때문에 dto 를 사용하여 응답할 데이터를 선택적으로 정의해준다.
+    (Entity 의 변수명을 db의 컬럼명과 일치시키고 dto 의 변수명을 카멜케이스로 정의하여 사용하는 경우도 있다.)
+
+    예)
+        Entity
+            private String user_id;
+            private String user_name;
+            private String user_password;
+
+        dto
+            Response{
+                private String userId;
+                private String userName;
+            }
+
+        Entity 의 변수명을 db의 컬럼명과 일치시키고 dto 의 변수명을 카멜케이스로 사용 할 수 있다.
+        dto.Request.builder()
+                .userId(entity.getUser_id())
+                .userName(entity.getUser_name())
+                .build();
+
+    - controller
+    Controller 는 model 과 view 를 이어주는 중계자 역할을 한다.
+    (이곳에서의 모델이란 service, dto, repository 를 말한다)
+
+    view 에서 클라이언트의 요청을 받고 service 에 처리를 요청하여
+    응답값을 다시 view 로 던져주는 역할을 한다고 생각하면 된다.
+
+    - service
+    Controller 로 부터 요청을 받은 Service 는 비즈니스 로직을 실행하고
+    dto 에 데이터를 담아 컨트롤러로 전달하여준다.
+
+    - entity
+    데이터베이스에 쓰일 필드와 여러 엔티티간 연관관계를 정의한다.
