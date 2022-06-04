@@ -1,6 +1,0 @@
-*H2DB 와 Http 파일을 사용하여 몬스터 생성하기!
-- 만들어줄 클래스
-    - PMakerController (패키지: controller)
-    - PMakerService (패키지: service)
-    - Pokemon (패키지: entity)
-    - PokemonRepository (패키지: repository)

@@ -22,4 +22,9 @@
     가독성있는 테스트코드를 만들수 있게 도와주는 hamcrest 라이브러리이다.(Junit4 에는 포함되었지만 Junit5 에서는 제외되었다)
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
 
+    - jpa 로그를 더 효율적으로 보는 방법
+    implementation 'org.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.7'
+    ?, ? 라고 뜨는 벨류값들을 자세히 확인가능. 다만 운영에서 사용하기에는 로그를 남기는 것들이
+    성능을 조금씩 깎아먹기 때문에 운영시에는 성능테스트를 하고 사용하는것이 좋다. 공부할때는 쓰는것이 좋다
+
 
