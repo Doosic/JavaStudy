@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface MonstertRepository
+public interface MonsterRepository
         extends JpaRepository<MonsterEntity, Long> {
 
     Optional<MonsterEntity> findByMonsterId(String monsterId);

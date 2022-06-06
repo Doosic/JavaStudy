@@ -1,3 +1,15 @@
 ! Enum 클래스 Converter 로 재편성 해보기 : https://velog.io/@youmakemesmile/JPA-Enum-Type-%EC%A0%81%EC%9A%A9%EA%B8%B0
 
+* 예외처리는 Controller 와 service 둘다 처리해준다.
 
+    - Controller
+      Controller 가 1개~3개 일때에는 각 컨트롤러마다 예외처리를 해줄 수 있다.
+      그러나 그 갯수가 많아지기 시작한다면 보일러플레이트 코드가되어 비효율 적이다.
+      그렇기에 컨트롤러에서 직접 처리하는 것이 아닌 글로벌 ExceptionHandler 클래스를 만들어
+      그곳에서 다 처리해주는 방법을 사용한다.
+
+      1. Error 를 반환해주는 ErrorResponse 클래스를 만들어준다.
+      2. ExceptionHandler 클래스를 만들어준다.
+      3. @RestControllerAdvice 어노테이션을 달아준다.
+            - 각 컨트롤러에게 조언을 해주는, 컨트롤러에 어드바이스 역할을 해주는 컨트롤러를 Bean 으로 등록
+      4.
