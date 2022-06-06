@@ -32,9 +32,8 @@ public class CreateMonsterDto {
         private StatusCode statusCode;
 
         @NotNull
-        @Min(0)
-        @Max(100)
-        private String experienceYears;
+        @Size(min = 14, max = 14, message = "ssn max_size 14")
+        private String ssn;
 
         @NotNull
         @Size(min = 3, max = 100, message = "name size must 3~100")
@@ -64,7 +63,6 @@ public class CreateMonsterDto {
         private MonsterLevel monsterLevel;
         private MonsterType monsterType;
         private StatusCode statusCode;
-        private Integer experienceYears;
         private String name;
 
         public static Response fromEntity(@NotNull MonsterEntity monsterEntity){
@@ -72,7 +70,6 @@ public class CreateMonsterDto {
                     .monsterLevel(monsterEntity.getMonsterLevel())
                     .monsterType(monsterEntity.getMonsterType())
                     .statusCode(monsterEntity.getStatusCode())
-                    .experienceYears(monsterEntity.getExperienceYears())
                     .name(monsterEntity.getName())
                     .build();
         }
