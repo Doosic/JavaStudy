@@ -2,11 +2,14 @@ package com.fc_study.monsterGrowth.service;
 
 import com.fc_study.monsterGrowth.dto.CreateMonsterDto;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
+import com.fc_study.monsterGrowth.exception.MMakerException;
 import com.fc_study.monsterGrowth.repository.MonsterRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import static com.fc_study.monsterGrowth.exception.MMakerErrorCode.DUPLICATE_SSN;
 
 @Slf4j
 @Service
@@ -42,6 +45,7 @@ public class MMakerService {
     public CreateMonsterDto.Response createMonster(
             CreateMonsterDto.Request request
     ){
+        validateCreateMonsterRequest(request);
         // save 메서드는 Entity 에 들어온 값을 다시 리턴해준다.
         return CreateMonsterDto.Response.fromEntity(
                 monsterRepository.save(
@@ -56,6 +60,9 @@ public class MMakerService {
         request.getMonsterLevel().ValidateAge(
                         request.getAge()
                 );
-
+        monsterRepository.findByMonsterSsn(request.getSsn())
+                .ifPresent((monsterEntity -> {
+                    throw new MMakerException(DUPLICATE_SSN);
+                }));
     }
 }
