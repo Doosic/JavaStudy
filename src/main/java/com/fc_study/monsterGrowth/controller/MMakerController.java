@@ -22,7 +22,7 @@ public class MMakerController {
     public CreateMonsterDto.Response createMonster(
             @Valid @RequestBody final CreateMonsterDto.Request request
     ){
-        log.info("request : ", request);
+        log.info("Start CreateMonster !!!");
         return mMakerService.createMonster(request);
     }
 

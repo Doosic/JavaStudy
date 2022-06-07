@@ -5,7 +5,7 @@ Content-Type: application/json
   "monsterLevel": "BABY",
   "monsterType": "GROUND",
   "statusCode": "HEALTHY",
-  "ssn": "1132561732567",
+  "ssn": "1132561532567",
   "name": "file_dog",
   "age": 0,
   "height": 153,

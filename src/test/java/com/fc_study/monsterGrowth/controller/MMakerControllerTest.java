@@ -1,5 +1,6 @@
 package com.fc_study.monsterGrowth.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fc_study.monsterGrowth.code.StatusCode;
 import com.fc_study.monsterGrowth.dto.CreateMonsterDto;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
@@ -8,7 +9,10 @@ import com.fc_study.monsterGrowth.service.MMakerService;
 import com.fc_study.monsterGrowth.type.MonsterLevel;
 import com.fc_study.monsterGrowth.type.MonsterType;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,11 +23,16 @@ import org.springframework.util.MultiValueMap;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import static com.fc_study.monsterGrowth.type.MonsterLevel.BABY;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -39,7 +48,7 @@ class MMakerControllerTest {
     private MonsterRepository monsterRepository;
 
     private MonsterEntity defaultMonster = MonsterEntity.builder()
-                .monsterLevel(MonsterLevel.BABY)
+                .monsterLevel(BABY)
                 .monsterType(MonsterType.FLY)
                 .statusCode(StatusCode.HEALTHY)
                 .ssn("96050311082045")
@@ -51,7 +60,7 @@ class MMakerControllerTest {
 
     private CreateMonsterDto.Request getCreateRequest(){
                 return CreateMonsterDto.Request.builder()
-                        .monsterLevel(MonsterLevel.BABY)
+                        .monsterLevel(BABY)
                         .monsterType(MonsterType.FLY)
                         .statusCode(StatusCode.HEALTHY)
                         .ssn("96050311082045")
@@ -71,24 +80,28 @@ class MMakerControllerTest {
                     StandardCharsets.UTF_8);
 
     @Test
+    @DisplayName("Monster Created Test")
     void createMonster() throws Exception{
         //given(준비) : 어떠한 데이터가 준비되었을 때
-        // validation 준비
-        given( monsterRepository.findBySsn(anyString()))
-                .willReturn(Optional.ofNullable(defaultMonster));
+//        given(mMakerService.createMonster(getCreateRequest()))
+//                .willReturn(CreateMonsterDto.Response.fromEntity(defaultMonster));
+        given(monsterRepository.save(defaultMonster))
+                .willReturn(defaultMonster);
 
-        // baby 몬스터를 만들어준다.
+
         // when(실행): 어떠한 함수를 실행하면
-        CreateMonsterDto.Response createMonsterDto =  mMakerService.createMonster(getCreateRequest());
-        log.info("====================================================================================");
-        log.info("createMonsterDto : ",createMonsterDto);
-        log.info("====================================================================================");
+        // andExpect : 기대하는 값이 나왔는지 체크해볼 수 있는 메소드드
+        mMakerService.createMonster(getCreateRequest());
 
         // then(검증): 어떠한 결과가 나와야 한다.
-        // 가짜 mockMvc가 post 방식으로 create-monster을 호출하고 컨텐츠 타입은 json
-        mockMvc.perform(post("/create-monster").contentType(contentType)
-                .content(String.valueOf(createMonsterDto)))
-                .andExpect(status().isCreated())
+        // verify : 해당 객체의 메소드가 실행되었는지 체크해줌
+        ObjectMapper mapper = new ObjectMapper();
+        mockMvc.perform(
+                        post("/create-monster")
+                                .contentType(contentType)
+                                .content(mapper.writeValueAsString(getCreateRequest())))
+                .andExpect(status().isOk())
                 .andDo(print());
+
     }
 }
