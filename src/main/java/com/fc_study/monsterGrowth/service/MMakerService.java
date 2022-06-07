@@ -60,7 +60,7 @@ public class MMakerService {
         request.getMonsterLevel().ValidateAge(
                         request.getAge()
                 );
-        monsterRepository.findByMonsterSsn(request.getSsn())
+        monsterRepository.findBySsn(request.getSsn())
                 .ifPresent((monsterEntity -> {
                     throw new MMakerException(DUPLICATE_SSN);
                 }));
