@@ -6,8 +6,8 @@ spring:
     show_sql: true
     properties:
       hibernate:
-      format_sql: true
-      use_sql_commets: true
+        format_sql: true
+        use_sql_commets: true
 
 logging.level:
   org.hibernate.SQL: debug

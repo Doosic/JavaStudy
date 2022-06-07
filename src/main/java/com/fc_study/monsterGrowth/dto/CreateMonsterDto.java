@@ -32,7 +32,7 @@ public class CreateMonsterDto {
         private StatusCode statusCode;
 
         @NotNull
-        @Size(min = 14, max = 14, message = "ssn max_size 14")
+        @Size(min = 13, max = 15, message = "ssn max_size 14")
         private String ssn;
 
         @NotNull
@@ -49,7 +49,7 @@ public class CreateMonsterDto {
         private Integer height;
 
         @NotNull
-        @Size(min = 50, max = 5000, message = "height size must 50~5000")
+        @Size(min = 50, max = 5000, message = "weight size must 50~5000")
         private Integer weight;
     }
 

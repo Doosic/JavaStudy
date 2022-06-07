@@ -1,0 +1,13 @@
+POST http://localhost:8080/create-monster
+Content-Type: application/json
+
+{
+  "monsterLevel": "BABY",
+  "monsterType": "GROUND",
+  "statusCode": "HEALTHY",
+  "ssn": "1132561732567",
+  "name": "file_dog",
+  "age": 0,
+  "height": 100,
+  "weight": 70
+}

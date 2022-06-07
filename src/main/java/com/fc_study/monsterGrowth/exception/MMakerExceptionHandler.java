@@ -51,7 +51,7 @@ public class MMakerExceptionHandler {
     }
 
     // 진짜 알 수 없는 오류
-    @ExceptionHandler(MMakerException.class)
+    @ExceptionHandler(Exception.class)
     public MMakerErrorResponse handleException(
             Exception e,
             HttpServletRequest request
