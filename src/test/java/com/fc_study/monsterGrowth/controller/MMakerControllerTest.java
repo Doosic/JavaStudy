@@ -26,6 +26,7 @@ import java.util.Optional;
 import static com.fc_study.monsterGrowth.type.MonsterLevel.BABY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -43,6 +44,9 @@ class MMakerControllerTest {
 
     @MockBean
     private MMakerService mMakerService;
+
+    @MockBean
+    private MMakerController mMakerController;
 
     @MockBean
     private MonsterRepository monsterRepository;
@@ -83,15 +87,12 @@ class MMakerControllerTest {
     @DisplayName("Monster Created Test")
     void createMonster() throws Exception{
         //given(준비) : 어떠한 데이터가 준비되었을 때
-//        given(mMakerService.createMonster(getCreateRequest()))
-//                .willReturn(CreateMonsterDto.Response.fromEntity(defaultMonster));
-        given(monsterRepository.save(defaultMonster))
-                .willReturn(defaultMonster);
-
+        given(mMakerService.createMonster(getCreateRequest()))
+                .willReturn(CreateMonsterDto.Response.fromEntity(defaultMonster));
 
         // when(실행): 어떠한 함수를 실행하면
         // andExpect : 기대하는 값이 나왔는지 체크해볼 수 있는 메소드드
-        mMakerService.createMonster(getCreateRequest());
+        CreateMonsterDto.Response result = mMakerService.createMonster(getCreateRequest());
 
         // then(검증): 어떠한 결과가 나와야 한다.
         // verify : 해당 객체의 메소드가 실행되었는지 체크해줌
@@ -99,9 +100,10 @@ class MMakerControllerTest {
         mockMvc.perform(
                         post("/create-monster")
                                 .contentType(contentType)
-                                .content(mapper.writeValueAsString(getCreateRequest())))
+                                .content(mapper.writeValueAsString(result)))
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
 
     }
 }
