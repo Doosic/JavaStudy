@@ -1,0 +1,57 @@
+TDD (Test Driven Development)
+선 테스트코드 작성 후 실제 코드를 개발하는 방법
+
+    - TDD 의 3가지 Cycle
+      red - 실패
+      green - 성공
+      Refactoring test - 코드 리펙토링
+
+    - given/when/then 패턴
+        - given(준비) : 어떠한 데이터가 준비되었을 때
+        - when(실행): 어떠한 함수를 실행하면
+        - then(검증): 어떠한 결과가 나와야 한다.
+
+    - Controller 테스트 클래스 만들기 (단축키 인텔리제이 22/06/07 최신버전 윈도우 기준 Ctrl + Shift + T)
+
+    - mockMvc 란?
+        - 실제 객체와 비슷하지만 테스트에 필요한 기능만 가지는 가짜 객체를 만들어서 애플리케이션 서버에 배포하지 않고도
+          스프링 MVC 동작을 재현할 수 있는 클래스를 의미한다.
+
+        - mockMvc 의 메소드
+            - perform()
+              요청을 전송하는 역할을 합니다. 결과로 ResultAction 객체를 받으며, ResultActions 객체는 리턴값을 검증하고 확인할 수 있는
+              andExpect() 메소드를 제공한다.
+
+            - get("/mock/detail-test"), post("/mock/create-test"), put("/mock/edit-test"), delete("/mock/delete-test")
+              HTTP 메소드를 결정할 수 있다. 인자값으로는 경로를 보내줄 수 있다.
+
+            - params(Obj)
+              key = value 형식의 파라미터를 전달할 수 있다.
+              여러개일때는 params()를, 하나일 때에는 param()을 사용한다.
+
+            - andExpect()
+              응답을 검증하는 역할을 합니다.
+              상태코드 (status())
+                    - 사용법 : 메서드이름.상태코드 = status().isOk()
+                      - isOk() : 200
+                      - isNotFound() : 404
+                      - isMethodNotAllowed() : 405
+                      - isInternalServerError() : 500
+                      - is(int status) : status 상태 코드
+              뷰 (view())
+                      - 리턴하는 뷰 이름을 검증한다.
+                      - 사용법 : view().name("testView")
+              리다이렉트 (redirect())
+                      - 리다이렉트 응답을 검증합니다.
+                      - redirectUrl("/testView")
+              모델 정보 ( model() )
+                      - 컨트롤러에서 저장한 모델들의 정보 검증
+              응답 정보 검증 ( content() )
+                      - 응답에 대한 정보를 검증해줍니다.
+              andDo(print())
+                      - 요청/응답 전체 메세지를 확인할 수 있습니다.
+
+    - @WebMvcTest()
+        - 컨트롤러 관련 Bean 들만 활성화 시켜서 사용할 수 있다.
+          괄호안에 클래스명을 적어주면 해당 클래스만 띄울수 있다.
+          그러나 해당 클래스를 띄우는데 필요한 클래스는 기본적으로 올려준다.
