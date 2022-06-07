@@ -14,12 +14,8 @@ import javax.validation.constraints.Size;
 public class CreateMonsterDto {
 
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Builder
-    @ToString
     public static class Request{
 
         @NotNull
@@ -55,24 +51,28 @@ public class CreateMonsterDto {
         private Integer weight;
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data
     @Builder
-    @ToString
     public static class Response{
         private MonsterLevel monsterLevel;
         private MonsterType monsterType;
         private StatusCode statusCode;
+        private String ssn;
         private String name;
+        private Integer age;
+        private Integer height;
+        private Integer weight;
 
         public static Response fromEntity(@NotNull MonsterEntity monsterEntity){
             return Response.builder()
                     .monsterLevel(monsterEntity.getMonsterLevel())
                     .monsterType(monsterEntity.getMonsterType())
                     .statusCode(monsterEntity.getStatusCode())
+                    .ssn(monsterEntity.getSsn())
                     .name(monsterEntity.getName())
+                    .age(monsterEntity.getAge())
+                    .height(monsterEntity.getHeight())
+                    .weight(monsterEntity.getWeight())
                     .build();
         }
 
