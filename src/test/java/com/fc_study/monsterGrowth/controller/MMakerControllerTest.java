@@ -102,7 +102,8 @@ class MMakerControllerTest {
                                 .contentType(contentType)
                                 .content(mapper.writeValueAsString(result)))
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
 
     }
 }
