@@ -56,3 +56,7 @@ TDD (Test Driven Development)
         - 컨트롤러 관련 Bean 들만 활성화 시켜서 사용할 수 있다.
           괄호안에 클래스명을 적어주면 해당 클래스만 띄울수 있다.
           그러나 해당 클래스를 띄우는데 필요한 클래스는 기본적으로 올려준다.
+
+        오류 해결 참고 : https://www.4te.co.kr/913
+        오류 내용 : message: Required request body is missing: public com.fc_study.monsterGrowth.dto.CreateMonsterDto$Response
+        @EqualsAndHashCode : https://jojoldu.tistory.com/134
