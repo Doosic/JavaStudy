@@ -31,6 +31,7 @@ public class MMakerService {
     */
     private MonsterEntity createMonsterFromRequest(CreateMonsterDto.Request request){
         return MonsterEntity.builder()
+                .id(1L)
                 .monsterLevel(request.getMonsterLevel())
                 .monsterType(request.getMonsterType())
                 .statusCode(request.getStatusCode())
