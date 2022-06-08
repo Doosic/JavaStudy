@@ -1,5 +1,6 @@
 package com.fc_study.monsterGrowth.controller;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fc_study.monsterGrowth.dto.CreateMonsterDto;
 import com.fc_study.monsterGrowth.service.MMakerService;
 import lombok.RequiredArgsConstructor;

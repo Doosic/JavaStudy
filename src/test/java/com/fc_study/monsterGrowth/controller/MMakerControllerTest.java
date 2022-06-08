@@ -21,6 +21,7 @@ import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterType.FLY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
@@ -40,6 +41,7 @@ class MMakerControllerTest {
     private MMakerService mMakerService;
 
     private MonsterEntity defaultMonster = MonsterEntity.builder()
+                .id(1L)
                 .monsterLevel(BABY)
                 .monsterType(FLY)
                 .statusCode(StatusCode.HEALTHY)
@@ -52,6 +54,7 @@ class MMakerControllerTest {
 
     private CreateMonsterDto.Request getCreateRequest(){
                 return CreateMonsterDto.Request.builder()
+                        .id(1L)
                         .monsterLevel(BABY)
                         .monsterType(FLY)
                         .statusCode(StatusCode.HEALTHY)
@@ -83,11 +86,10 @@ class MMakerControllerTest {
         CreateMonsterDto.Response result = mMakerService.createMonster(getCreateRequest());
 
         // TODO : then(검증) = 어떠한 결과가 나와야 한다.
-        ObjectMapper mapper = new ObjectMapper();
         mockMvc.perform(
                         post("/create-monster")
                                 .contentType(contentType)
-                                .content(mapper.writeValueAsString(result)))
+                                .content(new ObjectMapper().writeValueAsString(result)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();

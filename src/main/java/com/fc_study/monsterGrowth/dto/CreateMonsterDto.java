@@ -19,8 +19,11 @@ public class CreateMonsterDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    @EqualsAndHashCode
+    @EqualsAndHashCode(of = "id")
     public static class Request{
+
+        @NotNull
+        private Long id;
 
         @NotNull
         private MonsterLevel monsterLevel;
@@ -61,8 +64,8 @@ public class CreateMonsterDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    @EqualsAndHashCode
     public static class Response{
+        private Long id;
         private MonsterLevel monsterLevel;
         private MonsterType monsterType;
         private StatusCode statusCode;
@@ -74,6 +77,7 @@ public class CreateMonsterDto {
 
         public static Response fromEntity(@NotNull MonsterEntity monsterEntity){
             return Response.builder()
+                    .id(monsterEntity.getId())
                     .monsterLevel(monsterEntity.getMonsterLevel())
                     .monsterType(monsterEntity.getMonsterType())
                     .statusCode(monsterEntity.getStatusCode())
@@ -88,8 +92,8 @@ public class CreateMonsterDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    @EqualsAndHashCode
     public static class TestResponse{
+        private Long id;
         private MonsterLevel monsterLevel;
         private MonsterType monsterType;
         private StatusCode statusCode;
@@ -101,6 +105,7 @@ public class CreateMonsterDto {
 
         public static Response fromEntity(@NotNull MonsterEntity monsterEntity){
             return Response.builder()
+                    .id(monsterEntity.getId())
                     .monsterLevel(monsterEntity.getMonsterLevel())
                     .monsterType(monsterEntity.getMonsterType())
                     .statusCode(monsterEntity.getStatusCode())

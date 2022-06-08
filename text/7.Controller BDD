@@ -62,3 +62,7 @@ Mockito 는 BddMockito 라는
         오류 해결 참고 : https://www.4te.co.kr/913
         오류 내용 : message: Required request body is missing: public com.fc_study.monsterGrowth.dto.CreateMonsterDto$Response
         @EqualsAndHashCode : https://jojoldu.tistory.com/134
+
+        @EqualsAndHashCode(of="id"): 연관 관계가 복잡해 질 때,
+        @EqualsAndHashCode에서 서로 다른 연관 관계를 순환 참조하느라 무한 루프가 발생하고,
+        결국 stack overflow가 발생할 수 있기 때문에 id 값만 주로 사용합니다.
