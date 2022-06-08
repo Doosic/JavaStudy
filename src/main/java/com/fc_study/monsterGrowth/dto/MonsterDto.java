@@ -2,8 +2,8 @@ package com.fc_study.monsterGrowth.dto;
 
 import com.fc_study.monsterGrowth.code.StatusCode;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
-import com.fc_study.monsterGrowth.type.MonsterLevel;
-import com.fc_study.monsterGrowth.type.MonsterType;
+import com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterLevel;
+import com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterType;
 import lombok.*;
 
 @Getter

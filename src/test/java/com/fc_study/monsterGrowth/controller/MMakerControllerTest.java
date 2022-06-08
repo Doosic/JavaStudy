@@ -5,7 +5,6 @@ import com.fc_study.monsterGrowth.code.StatusCode;
 import com.fc_study.monsterGrowth.dto.CreateMonsterDto;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
 import com.fc_study.monsterGrowth.service.MMakerService;
-import com.fc_study.monsterGrowth.type.MonsterType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,11 +16,14 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
 
-import static com.fc_study.monsterGrowth.type.MonsterLevel.BABY;
+import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterLevel.BABY;
+import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterType.FLY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -39,7 +41,7 @@ class MMakerControllerTest {
 
     private MonsterEntity defaultMonster = MonsterEntity.builder()
                 .monsterLevel(BABY)
-                .monsterType(MonsterType.FLY)
+                .monsterType(FLY)
                 .statusCode(StatusCode.HEALTHY)
                 .ssn("96050311082045")
                 .name("애기몬스터")
@@ -51,7 +53,7 @@ class MMakerControllerTest {
     private CreateMonsterDto.Request getCreateRequest(){
                 return CreateMonsterDto.Request.builder()
                         .monsterLevel(BABY)
-                        .monsterType(MonsterType.FLY)
+                        .monsterType(FLY)
                         .statusCode(StatusCode.HEALTHY)
                         .ssn("96050311082045")
                         .name("애기몬스터")
@@ -77,12 +79,10 @@ class MMakerControllerTest {
         given(mMakerService.createMonster(getCreateRequest()))
                 .willReturn(CreateMonsterDto.TestResponse.fromEntity(defaultMonster));
 
-
-        // when(실행): 어떠한 함수를 실행하면
-        // andExpect : 기대하는 값이 나왔는지 체크해볼 수 있는 메소드드
+        // TODO : when(실행) = 어떠한 함수를 실행하면, andExpect : 기대하는 값이 나왔는지 체크해볼 수 있는 메소드드
         CreateMonsterDto.Response result = mMakerService.createMonster(getCreateRequest());
-        // then(검증): 어떠한 결과가 나와야 한다.
-        // verify : 해당 객체의 메소드가 실행되었는지 체크해줌
+
+        // TODO : then(검증) = 어떠한 결과가 나와야 한다.
         ObjectMapper mapper = new ObjectMapper();
         mockMvc.perform(
                         post("/create-monster")
@@ -91,5 +91,8 @@ class MMakerControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
+        // TODO : times() 해당 메서드가 몇번 호출되었는지 검증
+        // TODO : then(Mock객체).should(수행횟수 검증).수행 메서드와(인자값)
+        then(mMakerService).should(times(2)).createMonster(getCreateRequest());
     }
 }
