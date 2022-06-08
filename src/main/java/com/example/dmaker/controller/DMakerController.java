@@ -1,14 +1,10 @@
 package com.example.dmaker.controller;
 
 import com.example.dmaker.dto.*;
-import com.example.dmaker.exception.DMakerException;
 import com.example.dmaker.service.DMakerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 

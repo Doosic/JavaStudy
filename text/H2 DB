@@ -10,7 +10,7 @@ H2DB란?
 설명 참조 : public class DmakerApplication
 사용 방법
 
-1.application.yml 파일에 다음과 같이 설정을 해준다.
+1.application.yml 파일에 다음과 같이 설정을 해준다. //raisingPokemon
 spring:
   h2:
     console:
