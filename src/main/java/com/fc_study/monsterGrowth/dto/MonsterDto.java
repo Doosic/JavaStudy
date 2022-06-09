@@ -11,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class MonsterDto {
     private Long id;
     private MonsterLevel monsterLevel;
