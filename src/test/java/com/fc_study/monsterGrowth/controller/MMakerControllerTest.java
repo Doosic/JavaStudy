@@ -83,6 +83,7 @@ class MMakerControllerTest {
                 .willReturn(CreateMonsterDto.TestResponse.fromEntity(defaultMonster));
 
         // TODO : when(실행) = 어떠한 함수를 실행하면, andExpect : 기대하는 값이 나왔는지 체크해볼 수 있는 메소드드
+        // 여기서 result 반환을 못해준다.
         CreateMonsterDto.Response result = mMakerService.createMonster(getCreateRequest());
 
         // TODO : then(검증) = 어떠한 결과가 나와야 한다.
