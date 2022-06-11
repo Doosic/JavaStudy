@@ -21,7 +21,7 @@ public class MMakerController {
     */
     @PostMapping("/create-monster")
     public CreateMonsterDto.Response createMonster(
-            @Valid @RequestBody final CreateMonsterDto.Request request
+            @Valid @RequestBody CreateMonsterDto.Request request
     ){
         log.info("Start CreateMonster !!!");
         return mMakerService.createMonster(request);

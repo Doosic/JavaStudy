@@ -30,7 +30,7 @@ public class MMakerService {
               (공통적으로 쓸수 있는걸 만들수도 있겠지만)
     */
     private MonsterEntity createMonsterFromRequest(CreateMonsterDto.Request request){
-        return MonsterEntity.builder()
+           return MonsterEntity.builder()
                 .id(1L)
                 .monsterLevel(request.getMonsterLevel())
                 .monsterType(request.getMonsterType())
@@ -47,7 +47,7 @@ public class MMakerService {
             CreateMonsterDto.Request request
     ){
         validateCreateMonsterRequest(request);
-        // save 메서드는 Entity 에 들어온 값을 다시 리턴해준다.
+
         return CreateMonsterDto.Response.fromEntity(
                 monsterRepository.save(
                         createMonsterFromRequest(request)

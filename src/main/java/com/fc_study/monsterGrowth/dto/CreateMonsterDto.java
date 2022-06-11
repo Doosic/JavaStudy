@@ -19,7 +19,7 @@ public class CreateMonsterDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    @EqualsAndHashCode(of = "name")
+    @EqualsAndHashCode(of = "id")
     public static class Request{
 
         @NotNull
