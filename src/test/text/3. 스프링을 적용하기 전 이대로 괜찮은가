@@ -45,3 +45,36 @@
 
 
            - 제어역전을 통해 결합도를 더 느슨하게 main 에서는 구현체마저도 모르게 하자.
+                - Service 클래스를 만들고 생성자를 통해 어떤 Sort 구현체를 주입받을지 결정한다.
+
+                    1. 바뀔일이 없기 때문에 final 로 선언
+                    private final Sort<String> sort;
+
+                    2. 생성자를 통해 Sort 인터페이스를 통해 만들어진 구현 클래스를 주입받는다.
+                    public SortService(Sort<String> sort) {
+                        this.sort = sort;
+                        아웃로그를 통해 어느 클래스를 사용했는지 확인 가능
+                        System.out.println("implementation: "+ sort.getClass().getName());
+                    }
+
+                    3. 구현 클래스를 생성자를 통해 주입받았고 this.sort = sort
+                       3-1. sort 에는 구현된 클래스가 들어있으며(JavaSort, BubbleSort)
+                       3-2. sort(JavaSort || BubbleSort, Sort 인터페이스로 구현된 클래스).sort 로 정렬
+                    public List<String> doSort(List<String> list){
+                        return sort.sort(list);
+                    }
+
+                - 아래의 코드는 Service 클래스를 통해 더욱더 느슨하게 결합한 형태이다.
+                  private SortService sut = new SortService(new JavaSort<String>());
+                  private SortService sut = new SortService(new BubbleSort<String>());
+                class SortServiceTest {
+                    private SortService sut = new SortService(new JavaSort<String>());
+                    @Test
+                    void test(){
+                        // given
+                        // when
+                        List<String> actual = sut.doSort(Arrays.asList("3", "2", "1"));
+                        // then
+                        assertEquals(Arrays.asList("1", "2", "3"), actual);
+                    }
+                }
