@@ -1,5 +1,6 @@
 package com.springBootStudy;
 
+import com.springBootStudy.logic.JavaSort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
