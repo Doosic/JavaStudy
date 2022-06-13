@@ -5,6 +5,7 @@ import com.fc_study.monsterGrowth.dto.CreateMonsterDto;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
 import com.fc_study.monsterGrowth.repository.MonsterRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterLevel.BABY;
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterType.FLY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -62,6 +64,30 @@ class MMakerServiceTest {
     }
 
     @Test
+    void createMonsterTdd(){
+        // given
+        // defaultMonster 인스턴스 변수를 사용 (공통적으로 사용하기 위해 빼두었다.)
+        final MonsterEntity defaultMonster1 = MonsterEntity.builder()
+                .id(1L)
+                .monsterLevel(BABY)
+                .monsterType(FLY)
+                .statusCode(StatusCode.HEALTHY)
+                .ssn("96050311082045")
+                .name("애기몬스터")
+                .age(3)
+                .height(170)
+                .weight(73)
+                .build();
+
+        // when
+        final MonsterEntity result = monsterRepository.save(defaultMonster1);
+
+        // then
+        log.info("result: "+result);
+
+    }
+
+    @Test
     void createMonster(){
         // TODO : create-monster 호출시 mMakerService.createMonster()을 리턴. 리턴값은 CreateMonsterDto.TestResponse
         // TODO : given(준비) = 어떠한 데이터가 준비되었을 때
@@ -86,5 +112,10 @@ class MMakerServiceTest {
 
 
         assertEquals(BABY, saveMonster.getMonsterLevel());
+    }
+
+    @Test
+    void updateMonster(){
+
     }
 }

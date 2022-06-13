@@ -58,18 +58,18 @@ class MMakerControllerTest {
             .weight(73)
             .build();
 
-    private CreateMonsterDto.Request getCreateRequest(){
-                return CreateMonsterDto.Request.builder()
-                        .id(1L)
-                        .monsterLevel(BABY)
-                        .monsterType(FLY)
-                        .statusCode(StatusCode.HEALTHY)
-                        .ssn("12345612345123")
-                        .name("BabyMonster")
-                        .age(3)
-                        .height(170)
-                        .weight(73)
-                        .build();
+    private CreateMonsterDto.Request getCreateRequest() {
+        return CreateMonsterDto.Request.builder()
+                .id(1L)
+                .monsterLevel(BABY)
+                .monsterType(FLY)
+                .statusCode(StatusCode.HEALTHY)
+                .ssn("12345612345123")
+                .name("BabyMonster")
+                .age(3)
+                .height(170)
+                .weight(73)
+                .build();
     }
 
 
@@ -82,8 +82,34 @@ class MMakerControllerTest {
                     StandardCharsets.UTF_8);
 
     @Test
+    @DisplayName("Monster get Test")
+    void getMonster() throws Exception{
+        // given
+
+
+        // when
+
+
+        // then
+
+    }
+
+    @Test
+    @DisplayName("Monster allList Test")
+    void getAllList() throws Exception{
+        // given
+
+
+        // when
+
+
+        // then
+
+    }
+
+    @Test
     @DisplayName("Monster Created Test")
-    void createMonster() throws Exception{
+    void createMonster() throws Exception {
         // given: 어떠한 데이터가 준비되었을 때, 특정 메소드가 실행되는 경우 실제 Return 을 줄 수 없기
         //        때문에 아래와 같이 가정 사항을 만들어준다.
         given(mMakerService.createMonster(getCreateRequest()))
@@ -102,4 +128,31 @@ class MMakerControllerTest {
                 .andReturn();
         then(mMakerService).should(times(2)).createMonster(getCreateRequest());
     }
+
+    @Test
+    @DisplayName("Monster updated Test")
+    void updateMonster() throws Exception {
+        // given
+
+
+        // when
+
+
+        // then
+
+    }
+
+    @Test
+    @DisplayName("Monster delete Test")
+    void deleteMonster() throws Exception{
+        // given
+
+
+        // when
+
+
+        // then
+
+    }
+
 }
