@@ -2,6 +2,8 @@ package com.fc_study.monsterGrowth.repository;
 
 import com.fc_study.monsterGrowth.code.StatusCode;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
+import com.fc_study.monsterGrowth.exception.MMakerErrorCode;
+import com.fc_study.monsterGrowth.exception.MMakerException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.After;
 import org.assertj.core.api.Assertions;
@@ -19,6 +21,7 @@ import java.util.Optional;
 
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterLevel.BABY;
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterType.FLY;
+import static com.fc_study.monsterGrowth.exception.MMakerErrorCode.NO_MONSTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +35,7 @@ class MonsterRepositoryTest {
 
     private MonsterEntity getDefaultMonster(Long id, String name, String ssn) {
         return MonsterEntity.builder()
-                .id(1L)
+                .id(id)
                 .monsterLevel(BABY)
                 .monsterType(FLY)
                 .statusCode(StatusCode.HEALTHY)
@@ -49,35 +52,47 @@ class MonsterRepositoryTest {
     @DisplayName("findMonster Test")
     void getMonster() {
         // given
-        final MonsterEntity result = monsterRepository.save(getDefaultMonster(1L,"애기몬스터", "96050312341234"));
-        final MonsterEntity result2 = monsterRepository.save(getDefaultMonster(2L,"응애몬스터", "96050312341233"));
+        final MonsterEntity resultFirst = monsterRepository.save(
+                getDefaultMonster(1L, "First 몬스터", "96050312341234")
+        );
+        final MonsterEntity resultSecond = monsterRepository.save(
+                getDefaultMonster(2L, "Second 몬스터", "96050312341233")
+        );
 
         // when
-        MonsterEntity getMonster = monsterRepository.findBySsn(result.getSsn())
+        MonsterEntity getMonster = monsterRepository.findBySsn(resultFirst.getSsn())
                 .orElseThrow(() -> new IllegalArgumentException("no such data"));
-        MonsterEntity getMonster2 = monsterRepository.findBySsn(result2.getSsn())
+        MonsterEntity getMonster2 = monsterRepository.findBySsn(resultSecond.getSsn())
                 .orElseThrow(() -> new IllegalArgumentException("no such data"));
 
         // given
-        assertThat(getMonster.getSsn()).isEqualTo(result.getSsn());
-        assertThat(getMonster2.getSsn()).isEqualTo(result2.getSsn());
+        assertThat(getMonster.getSsn()).isEqualTo(resultFirst.getSsn());
+        assertThat(getMonster2.getSsn()).isEqualTo(resultSecond.getSsn());
     }
 
     @Test
     @DisplayName("allListMonster Test")
-    void getAllList(){
+    void getAllList() {
         // given
-        monsterRepository.save(getDefaultMonster(1L,"애기몬스터", "96050312341234"));
-        monsterRepository.save(getDefaultMonster(2L,"응애몬스터", "96050312341233"));
-        monsterRepository.save(getDefaultMonster(3L,"응몬스터", "96050312341232"));
+        // 테스트 코드를 짜며 주의할 것: 메소드에서 반복되는 객체생성을 인스턴수 변수로 만들때에는 id 값을 인자값으로 받아 중복되지 않게 주의하자.
+        monsterRepository.save(getDefaultMonster(
+                1L, "First 몬스터", "96050312341234")
+        );
+        monsterRepository.save(getDefaultMonster(
+                2L, "Second 몬스터", "96050312341233")
+        );
+        monsterRepository.save(getDefaultMonster(
+                3L, "Third 몬스터", "96050312341232")
+        );
 
         // when
         List<MonsterEntity> resultList = monsterRepository.findAll();
 
         // then
-        log.info("resultList: "+ resultList.get(0).getName());
-        log.info("resultList: "+ resultList.get(1).getName());
-//        assertThat(resultList.size()).isEqualTo(2);
+        log.info("resultList: " + resultList.get(0).getName());
+        log.info("resultList: " + resultList.get(1).getName());
+        log.info("resultList: " + resultList.get(2).getName());
+        assertThat(resultList.size()).isEqualTo(3);
 
     }
 
@@ -86,7 +101,9 @@ class MonsterRepositoryTest {
     void createMonster() {
         // given
         // getDefaultMonster 를 공통적으로 사용하기 위해 작성해두었다.
-        MonsterEntity babyMonster = getDefaultMonster(1L,"애기몬스터", "96050312341234");
+        MonsterEntity babyMonster = getDefaultMonster(
+                1L, "First 몬스터", "96050312341234"
+        );
 
         // when
         final MonsterEntity result = monsterRepository.save(babyMonster);
@@ -103,14 +120,38 @@ class MonsterRepositoryTest {
     @DisplayName("updateMonster Test")
     void updateMonster() {
         // given
-
-
+        MonsterEntity resultMonster = monsterRepository.save(
+                getDefaultMonster(1L, "FirstMonster", "9605031123456")
+        );
+        log.info("resultMonster.name: " + resultMonster.getName());
         // when
+        resultMonster.setName("UpdateMonster");
+        MonsterEntity findUpdateMonster = monsterRepository.findBySsn(resultMonster.getSsn())
+                .orElseThrow(() -> new IllegalArgumentException("no such data"));
+        log.info("findUpdateMonster.name: " + findUpdateMonster.getName());
+        // then
+        assertThat(findUpdateMonster.getName()).isEqualTo("UpdateMonster");
+    }
 
+
+    @Test
+    @DisplayName("deleteMonster test")
+    void deleteMonster() {
+        // given
+        MonsterEntity result = monsterRepository.save(
+                getDefaultMonster(1L, "deleteMonster", "96050312341234")
+        );
+        log.info("deleteMonster result: " + result.getName());
+        // when
+//        monsterRepository.deleteById(result.getId());
+//        MonsterEntity fail = monsterRepository.findById(1L)
+//                .orElseThrow(() -> MMakerException(NO_MONSTER).getMessage());
+//        Exception findDeleteMonster = assertThrows(IllegalArgumentException.class,
+//                () -> monsterRepository.findById(1L));
 
         // then
-
-
+//        assertThat(findDeleteMonster).isEqualTo(NO_MONSTER);
     }
+
 
 }
