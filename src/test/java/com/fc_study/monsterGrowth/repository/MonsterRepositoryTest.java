@@ -2,27 +2,15 @@ package com.fc_study.monsterGrowth.repository;
 
 import com.fc_study.monsterGrowth.code.StatusCode;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
-import com.fc_study.monsterGrowth.exception.MMakerErrorCode;
 import com.fc_study.monsterGrowth.exception.MMakerException;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.After;
-import org.assertj.core.api.Assertions;
-import org.hamcrest.Matcher;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsEmptyIterable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterLevel.BABY;
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterType.FLY;
@@ -31,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@DataJpaTest // https://velog.io/@jwkim/spring-boot-datajpatest-springboottest
+@DataJpaTest
 @ExtendWith(MockitoExtension.class)
 class MonsterRepositoryTest {
 
@@ -54,8 +42,8 @@ class MonsterRepositoryTest {
 
 
     @Test
-    @DisplayName("findMonster Test")
-    void getMonster() {
+    @DisplayName("findMonster TDDTest")
+    void getDetailMonster() {
         // given
         final MonsterEntity resultFirst = monsterRepository.save(
                 getDefaultMonster(1L, "First 몬스터", "96050312341234")
@@ -76,7 +64,7 @@ class MonsterRepositoryTest {
     }
 
     @Test
-    @DisplayName("allListMonster Test")
+    @DisplayName("allListMonster TDDTest")
     void getAllList() {
         // given
         // 테스트 코드를 짜며 주의할 것: 메소드에서 반복되는 객체생성을 인스턴수 변수로 만들때에는 id 값을 인자값으로 받아 중복되지 않게 주의하자.
@@ -102,7 +90,7 @@ class MonsterRepositoryTest {
     }
 
     @Test
-    @DisplayName("createMonster Test")
+    @DisplayName("createMonster TDDTest")
     void createMonster() {
         // given
         // getDefaultMonster 를 공통적으로 사용하기 위해 작성해두었다.
@@ -122,7 +110,7 @@ class MonsterRepositoryTest {
     }
 
     @Test
-    @DisplayName("updateMonster Test")
+    @DisplayName("updateMonster TDDTest")
     void updateMonster() {
         // given
         MonsterEntity resultMonster = monsterRepository.save(
@@ -140,7 +128,7 @@ class MonsterRepositoryTest {
 
 
     @Test
-    @DisplayName("deleteMonster test")
+    @DisplayName("deleteMonster TDDTest")
     void deleteMonster() {
         // given
         MonsterEntity result = monsterRepository.save(
@@ -148,14 +136,14 @@ class MonsterRepositoryTest {
         );
 
         // when
-        monsterRepository.deleteById(1L);
+        monsterRepository.deleteById(result.getId());
 
-        // then
         MMakerException exception = assertThrows(MMakerException.class, ()->{
             monsterRepository.findById(1L)
                     .orElseThrow(() -> new MMakerException(NO_MONSTER));
         });
 
+        // then
         assertThat(exception.getMMakerErrorCode()).isEqualTo(NO_MONSTER);
     }
 

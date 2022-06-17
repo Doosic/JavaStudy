@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface MonsterRepository
         extends JpaRepository<MonsterEntity, Long> { //  findByMonsterSsn
 
-    Optional<MonsterEntity> findBySsn(String monsterId);
+    Optional<MonsterEntity> findBySsn(String ssn);
+
+    MonsterEntity deleteBySsn(String ssn);
 }
