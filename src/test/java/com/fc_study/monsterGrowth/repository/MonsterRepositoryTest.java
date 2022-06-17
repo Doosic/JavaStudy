@@ -7,6 +7,9 @@ import com.fc_study.monsterGrowth.exception.MMakerException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.After;
 import org.assertj.core.api.Assertions;
+import org.hamcrest.Matcher;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsEmptyIterable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@DataJpaTest
+@DataJpaTest // https://velog.io/@jwkim/spring-boot-datajpatest-springboottest
 @ExtendWith(MockitoExtension.class)
 class MonsterRepositoryTest {
 
@@ -141,16 +146,17 @@ class MonsterRepositoryTest {
         MonsterEntity result = monsterRepository.save(
                 getDefaultMonster(1L, "deleteMonster", "96050312341234")
         );
-        log.info("deleteMonster result: " + result.getName());
+
         // when
-//        monsterRepository.deleteById(result.getId());
-//        MonsterEntity fail = monsterRepository.findById(1L)
-//                .orElseThrow(() -> MMakerException(NO_MONSTER).getMessage());
-//        Exception findDeleteMonster = assertThrows(IllegalArgumentException.class,
-//                () -> monsterRepository.findById(1L));
+        monsterRepository.deleteById(1L);
 
         // then
-//        assertThat(findDeleteMonster).isEqualTo(NO_MONSTER);
+        MMakerException exception = assertThrows(MMakerException.class, ()->{
+            monsterRepository.findById(1L)
+                    .orElseThrow(() -> new MMakerException(NO_MONSTER));
+        });
+
+        assertThat(exception.getMMakerErrorCode()).isEqualTo(NO_MONSTER);
     }
 
 
