@@ -1,10 +1,13 @@
 package com.fc_study.monsterGrowth.service;
 
+import com.fc_study.monsterGrowth.code.StatusCode;
 import com.fc_study.monsterGrowth.dto.CreateMonsterDto;
 import com.fc_study.monsterGrowth.dto.DetailMonsterDto;
 import com.fc_study.monsterGrowth.dto.UpdateMonsterDto;
+import com.fc_study.monsterGrowth.entity.DeadMonsterEntity;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
 import com.fc_study.monsterGrowth.exception.MMakerException;
+import com.fc_study.monsterGrowth.repository.DeadMonsterRepository;
 import com.fc_study.monsterGrowth.repository.MonsterRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.fc_study.monsterGrowth.code.StatusCode.DEAD;
 import static com.fc_study.monsterGrowth.exception.MMakerErrorCode.DUPLICATE_SSN;
 import static com.fc_study.monsterGrowth.exception.MMakerErrorCode.NO_MONSTER;
 
@@ -24,6 +28,7 @@ import static com.fc_study.monsterGrowth.exception.MMakerErrorCode.NO_MONSTER;
 public class MMakerService {
 
     private final MonsterRepository monsterRepository;
+    private final DeadMonsterRepository deadMonsterRepository;
 
     /*
         createMonsterFromRequest 를 만드는 이유
@@ -173,10 +178,23 @@ public class MMakerService {
         혹시모를 복구와 문의를 대비해 일정 기간이상 보관후 삭제한다.
         그렇기에 Monster 가 살아있는지 죽었는지 체크를 해주도록 하겠다.
     */
-    public MonsterEntity deleteMonster(
+    @Transactional
+    public DetailMonsterDto deleteMonster(
         String ssn
     ){
-        return monsterRepository.deleteBySsn(ssn);
+        // 상태 영면으로 변경
+        MonsterEntity monster = monsterRepository.findBySsn(ssn)
+                .orElseThrow(() -> new MMakerException(NO_MONSTER));
+        monster.setStatusCode(DEAD);
+        // 영면상태가 된 몬스터는 다른 저장소에서 관리된다.
+        DeadMonsterEntity deadMonster = DeadMonsterEntity.builder()
+                .statusCode(monster.getStatusCode())
+                .ssn(monster.getSsn())
+                .name(monster.getName())
+                .build();
+
+        deadMonsterRepository.save(deadMonster);
+        return DetailMonsterDto.fromEntity(monster);
     }
 
 }

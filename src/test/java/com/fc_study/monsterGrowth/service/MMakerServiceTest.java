@@ -9,6 +9,7 @@ import com.fc_study.monsterGrowth.dto.UpdateMonsterDto;
 import com.fc_study.monsterGrowth.entity.MonsterEntity;
 import com.fc_study.monsterGrowth.exception.MMakerErrorCode;
 import com.fc_study.monsterGrowth.exception.MMakerException;
+import com.fc_study.monsterGrowth.repository.DeadMonsterRepository;
 import com.fc_study.monsterGrowth.repository.MonsterRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.fc_study.monsterGrowth.code.StatusCode.DEAD;
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterLevel.BABY;
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterLevel.CHILDREN;
 import static com.fc_study.monsterGrowth.entity.MonsterEntity.MonsterType.FLY;
@@ -44,6 +46,9 @@ class MMakerServiceTest {
 
     @Mock
     private MonsterRepository monsterRepository;
+
+    @Mock
+    private DeadMonsterRepository deadMonsterRepository;
 
     @InjectMocks
     private MMakerService mMakerService;
@@ -179,4 +184,24 @@ class MMakerServiceTest {
         assertThat(detailMonsterDto.getMonsterLevel()).isEqualTo(CHILDREN);
         assertThat(detailMonsterDto.getMonsterType()).isEqualTo(defaultUpdateMonster.getMonsterType());
     }
+
+    @Test
+    @DisplayName("deleteMonster BDDTest")
+    void deleteMonster() {
+        // given: 어떤 데이터가 준비되어있을때
+        given(monsterRepository.findBySsn(anyString()))
+                .willReturn(Optional.ofNullable(defaultMonster));
+        defaultMonster.setStatusCode(DEAD);
+        given(deadMonsterRepository.save(any()))
+                .willReturn(defaultMonster);
+
+        // when: 어떤 함수를 실행하면
+        DetailMonsterDto deleteMonster = mMakerService.deleteMonster(defaultMonster.getSsn());
+
+        // then: 어떤 결과가 나와야 한다.
+        then(monsterRepository).should(times(1)).findBySsn(anyString());
+        then(deadMonsterRepository).should(times(1)).save(any());
+        assertThat(deleteMonster.getStatusCode()).isEqualTo(DEAD);
+    }
+
 }
