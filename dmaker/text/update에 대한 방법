@@ -6,3 +6,5 @@ update를 할때에는 어떠한 메핑을 사용할까?
 
 put = 모든 정보 수정
 pach = 일부 정보 수정
+
+git push test 중입니다.
