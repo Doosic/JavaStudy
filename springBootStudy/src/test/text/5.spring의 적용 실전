@@ -1,0 +1,52 @@
+* Spring 이 무엇을 도와주는지 이론을 배웠으니 실전으로 사용해보자
+
+    - Build.gradle dependencies 에 추가
+        -  implementation 'org.springframework:spring-context:5.3.8'
+        -  testImplementation 'org.springframework:spring-context:5.3.8'
+
+    - 1. Main.java 로 이동해보자
+        - ApplicationContext context = new AnnotationConfigApplicationContext();
+          어노테이션 기반으로 작동하는 context 를 하나 만들어준다.
+
+      2. config 디렉토리와 Config 클래스파일을 하나 만들어준다
+        - @Configuration 어노테이션을 붙여 스프링 전용 설정파일이라는 것을 설정해준다.
+        - @ComponentScan("com.springBootStudy") 어노테이션을 사용하여 해당 패키지를 루트로 삼아
+          해당 패키지 이하의 Bean 들을 스캔할 수 있도록 한다.
+
+      3. 해당 Config 를 직접 지정해준다.
+        - ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+
+      4. Bean 등록을 해준다.
+        - BubbleSort 와 JavaSort 에 @Component 어노테이션을 달아
+          Bean 으로 등록하여 Bean 으로 인식할 수 있게 해준다.
+
+        - SortService 에 @Service 어노테이션을 달아 Bean 으로 등록해준다.
+
+          참고!
+          @Component 와 @Service 는 어노테이션의 기능은 같다. 다만 스프링에서 서비스 역할을
+          하는 Bean 으로 인식을 할 수있게끔 따로 만들어 둔 것이다.
+
+        5. Context 로 부터 Bean 을 꺼내어 본다.
+            - 본래는 Sort<String> sort = new JavaSort<>(); 와 같이 new 키워드로 생성했던것을
+              Sort<String> sort = context.getBean(Sort.class); context 에서 Bean 을 꺼내오는 방식으로 변경되었다.
+
+              Sort<String> sort = context.getBean(Sort.class); 는 SortService 에서 가져오는 것이 아닌
+              구현체를 직접 가져온다.
+              SortService sortService = context.getBean(SortService.class);
+
+              System.out.println("[result] " + sort.sort(Arrays.asList(args))); 에서
+              -> System.out.println("[result] " + sortService.doSort(Arrays.asList(args))); 로 변경
+
+        6. mainTest 를 실행
+            - 그러나 이 상태로 실행하면 에러가 발생한다.
+              Bean 으로 BubbleSort 와 JavaSort 를 등록하였지만 둘다 똑같은 인터페이스(Sort) 를 구현하는
+              구현체이기 때문이다. 누굴 선택해서 사용해야하는지 알 수 없다.
+
+              그래서 스트링에게 구체적으로 알려줘야할 필요가 있다.
+              아래와 같이 @Qualifier() 를 사용하여 이름을 기준으로 주입하는 방법이 있다.
+              다만 BubbleSort 였다면 맨 앞 글자를 소문자로 바꿔서 bubbleSort 로 사용해야 한다.
+
+              public SortService(@Qualifier("BubbleSort") Sort<String> sort) {
+                      this.sort = sort;
+                      System.out.println("implementation: "+ sort.getClass().getName());
+                  }
