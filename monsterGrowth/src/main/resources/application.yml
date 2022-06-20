@@ -1,0 +1,13 @@
+spring:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    show_sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_commets: true
+
+logging.level:
+  org.hibernate.SQL: debug
