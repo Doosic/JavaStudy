@@ -1,0 +1,81 @@
+글로벌 예외 처리
+1. 특정 메서드나 비즈니스 로직에 한정적인 예외처리는 좋지못함.
+2. 상황에 따라 boolean 또는 String 예외처리를 계속 해주어야 하는 문제 발생.
+
+#장점
+1.애러 메세지를 정확히 처리하지 못한다면 어떤 오류인지 알수가 없다.
+우리가 상대 서버 또는 뷰 화면단과 통신할때에 이런 오류(Bad Request 등...)에 어떤 방식으로 처리 해야지
+라는게 있을수 있는데 스프링에 버전업이라던지 기본값이 바뀌어 에러메세지가 바뀌어 마음대로 메세지가 바뀐다면
+화면단에서는 에러를 잡지못하고 장애가 발생할 가능성이 있다. 그렇기에 우리가 정의한대로 보내주는게 상대방이 처리하는게 좋다.
+
+2.애러 메세지가 디테일 하지는 않지만 많은것(sql쿼리문이라던가...ID,PW 입력시 아이디가 없습니다, 페스워드가 틀렸습니다
+라는것들[해당 아이디가 존재하는걸 알게되면 페스워드를 노가다로 찾을수도 있음])을 노출하면 보안적으로 위험할수도 있기 때문에
+많은것들을 노출해 주지 않는 장점이 있다.
+
+
+
+사용법
+Controller 에 @ExceptionHandler 를 만들어 컨트롤러 전용 에러 처리 핸들러를 만든다.
+
+Exception 과 구조는 비슷하고 api 별로 성공때에 내려주는 응답은 각자 다르나
+실패 때에는 공통적인 실패 dto 를 만드는 방식으로 사용한다.
+
+@ExceptionHandler 는 요청이 들어왔던 HttpServletRequest 를 함께 받을 수 있다.
+
+// () 사이에 원하는 Exception을 넣어줄 수 있다.
+    @ExceptionHandler(DMakerException.class)
+    public DMakerResponse handleException(
+            DMakerException e,
+            HttpServletRequest request){
+        log.error("errorCode: {}, url: {}, message: {}", e.getDMakerErrorCode(), );
+    }
+
+응답 200은 성공에 대한 응답이기때문에
+HttpStatus.CONFLICT 는 상수로 지정되어있어서 적절히 가져다 쓸수있다.
+@ResponseStatus(value = HttpStatus.CONFLICT)
+메서드위에 다음과같이 사용하여 에러메세지(400번대)에 맞는적절한 응답을 내려주자.
+
+HttpStatus.CONFLICT 는 중복 메세지인데 무엇에 대한 중복인지 알수없음
+어느 상황에 맞는 응답인지 알 수 없기때문에 실제 업무에서는 status 코드를 200으로 내려주고
+errorCode 나 errorMessage 로 세부적인 내용을 보내주는게 요즘 추세라고 한다.
+
+#글로벌 예외처리 더욱더 크게
+컨트롤러 1개 ~ 3개일때에는 각 컨트롤러마다 예외를 처리 해 줄수 있지만
+많아진다면 힘들다. 그렇기에 컨트롤러에서 직접 처리하는것이 아닌
+글로벌 Exception핸들러 클래스를 만들어 그곳에서 다 처리하는
+방법을 사용한다.
+
+#가끔 도저히 잡을 수 없는 Exception 들을 잡을 떄에 사용(컨트롤러 내부에 진입하기 전에 나오는 애러들을 잡기위함)
+HttpRequestMethodNotSupportedException.class = Post 메서드를 사용해야 할 곳에 Post 메서드가 아닌 다른 메서드를 사용했을때
+MethodArgumentNotValidException.class = 자바 Bean 벨리데이션을 할 때에 @NotNull,@Min 등... 컨트롤러 내부에 진입하기전에 문제되는 것들을 잡아준다.
+
+최후에는 어떤 오류가 날라오는지 알 수 없는 경우도 있기에 그런것들까지 모두 잡아줄수있는 에러 핸들러를 만들어줘야 한다.
+
+@RestControllerAdvice // 각 컨트롤러에게 조언을 해주는, 컨트롤러에 어드바이스 역할을 해주는 컨트롤러 / Bean으로 등록
+@ExceptionHandler(Exception.class) 적용범위가 지정되지 않았음으로 전역적으로 예외처리를 해준다.
+
+// 진짜 어떤 오류가 날라올지 알 수 없는 경우
+Exception e.getMessage() 오류에 담을 메세지를 지정하지 않는경우 기본 메세지를 뿌려준다
+*url: /create-developers, message: Request method 'PUT' not supported
+
+*url: /create-developers, message: Validation failed for argument [0]
+in public com.example.dmaker.dto.CreateDeveloper$Response com.example.dmaker.controller.DMakerController.
+createDevelopers(com.example.dmaker.dto.CreateDeveloper$Request):
+[Field error in object 'request' on field 'developerSkillType':
+rejected value [null]; codes [NotNull.request.developerSkillType,
+NotNull.developerSkillType,NotNull.com.example.dmaker.type.DeveloperSkillType,
+NotNull]; arguments [org.springframework.context.support.
+DefaultMessageSourceResolvable: codes [request.developerSkillType,developerSkillType]; arguments [];
+default message [developerSkillType]]; default message [널이어서는 안됩니다]]
+
+    @ExceptionHandler(Exception.class)
+    public DMakerErrorResponse handleException(
+            Exception e, HttpServletRequest request
+    ){
+        log.error("url: {}, message: {}", request.getRequestURI(), e.getMessage());
+
+        return DMakerErrorResponse.builder()
+                .errorCode(INTERNAL_SERVER_ERROR)
+                .errorMessage(INTERNAL_SERVER_ERROR.getMessage())
+                .build();
+    }

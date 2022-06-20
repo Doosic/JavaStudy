@@ -1,0 +1,15 @@
+// http 파일에서 post요청을 날려볼 수 있다.
+// #Examples 파일에 원하는 정보들을 볼수 있다
+// https 가 아닌 http로 통신을 해야한다. 이유는 찾아볼것.
+POST http://localhost:8080/create-developers
+Content-Type: application/json
+
+{
+  "developerLevel": "SENIOR",
+  "developerSkillType": "FRONT_END",
+  "experienceYears": 12,
+  "memberId": "Miky",
+  "name": "mouse",
+  "age": 32
+
+}

@@ -1,0 +1,214 @@
+#리펙토링 꼭 해야만 하는가?
+
+* 사실 SI 에서는 리팩토링이라는 개념이 거의 없었다...
+    - 왜냐하면 SI(System Integration) -> SM(System Maintenance) 로 넘기고 끝인 경우가 많았기 때문
+    - 일부 프레임워크를 만드는 팀은 제외
+
+* IT 서비스에서는 리팩토링이 아주 중요해진 이유는?
+    - 서비스 오픈 후 변화의 폭이 크다
+        - 절대 바뀌지 않는다는 정책이 바뀜
+            - 국내전용 -> 글로벌
+            - PC 전용 -> 모바일, 앱도 지원
+        - 중간에 추가적인 레이어가 하나씩 더 들어가는 경우 흔함
+          A 나라의 온라인 강좌, B 나라의 오프라인 강좌.. 온라인 오프라인 둘만있던것이 온라인에서의 어떤 종류의 온라인,
+          어떤 종류의 오프라인 이런식으로 추가가 될수 있다. 처음에는 3개국에서 하던것이 8개국 이런식으로 늘어나면서 정책들이 늘어날 수 가 있다.
+        - 기존 구조를 뒤흔드는 기능 추가를 하는 경우가 많다.
+          이런 기능을 추가하면 좋겠는데요? 하고 요구하는 경우가 일년에 한 두번씩 있다.
+    - 1번의 큰 변화는 프로젝트를 최속 1.5배 이상 복잡하게 만든다
+    - 이 복잡성을 줄여주는 것이 바로 리펙토링
+
+
+* 리팩토링의 주요 포인트
+    - 일정에 맞추느라 품질이 다소 떨어졌던 부분
+    - 서비스에서 핵심적이면서 사용자 경험에 큰 영향을 끼치는 부분
+    - 복잡도가 높고 향후 기능 추가, 변경 가능성이 높은 부분
+    - 타 서비스에서도 활용할만한 공통적인 기능
+        - 외부 라이브러리나 시스템으로 도출
+    - 테스트코드 등도 가능
+    - 도전적인 부분
+        - 새로운 기술로 성능 향상이나 유지보수성이 향상이 가능한 부분
+        - (기존도 나쁘지 않지만) 더 좋은 구성 방법이 생각나는 부분
+
+
+* 개선 방법
+    - DMakerController 에 getDeveloperDetail() 과 같이
+      요청을 받는 값들 String memberId 는 바뀌면 안되기 때문에 final 로 지정해주어야 한다.
+
+    - get 메서드이긴 하지만 혹시 나중에 추가적인 기능이 들어갔을 때를 대비해 Transactional 을 사용 그리고 도중에
+      트랜잭션 도중에 값이 변경되지 않도록 readOnly = true 를 붙여준다.
+        - Transactional 어노테이션의 기능을 제공하는 라이브러리는 2가지가 있다.
+              - import javax.transaction.Transactional;
+              - import org.springframework.transaction.annotation.Transactional;
+              - https://willseungh0.tistory.com/75 -> 읽기전용 트랜잭션 사용시 성능향상 이유
+
+    - 수정시 무언가의 정보를 수정한다면, 이전의 정보가 있어야한다. 그때마다
+      무언가가 존재하는지를 먼저 체크해야하고, 없다면 Exception 을 던져주어야 한다.
+      근데 그렇게되면 공통적인 Exception 을 던지는 코드가 늘어난다. 이런 부분을 줄여야 한다.
+
+    - 매개변수로 들어오는 값들중 null 이 되서는 안되는 값들에 @NonNull 을 붙여줄 수 있다. if 문으로 null 체크 안해도됨.
+
+    - 매직넘버(해당 메서드에 고정으로 박아둔 숫자, 그렇기에 해당 메서드를 찾아가야만 알 수 있다)
+      상수로 지정하던지, 매개변수로 받자
+
+    - 코딩 컨벤션 (팀원들간의 코드 스타일을 지키는것)
+
+    - 자주 사용되는 부분을 변수로 사용하거나, 메서드로 만드는것.
+
+
+* 개선 지점
+    - Service 에서 값을 저장하는 부분에 다음과같은 builder 패턴을 사용한 로직이 들어가있다.
+      * 방법 1
+      - 정답은 없으나 이 코드를 Entity 로 넣어서 사용하는 방법이 있다.
+        그러나 Entity 는 DB 와의 연동 ORM 을 위한 클래스이기 때문에 이곳에 메서드가 들어가는건 바람직하지 않다.
+        거기다 단지 CreateDeveloper 을 위한 메서드일뿐이다.
+      Developer developer = Developer.builder()
+                        .developerLevel(request.getDeveloperLevel())
+                        .developerSkillType(request.getDeveloperSkillType())
+                        .experienceYears(request.getExperienceYears())
+                        .memberId(request.getMemberId())
+                        .statusCode(StatusCode.EMPLOYED)
+                        .name(request.getName())
+                        .age(request.getAge())
+                        .build();
+
+      - Entity 에 from 이라는 메서드를 작성
+      public static Developer from(CreateDeveloper.Request request){
+              return Developer.builder()
+                      .developerLevel(request.getDeveloperLevel())
+                      .developerSkillType(request.getDeveloperSkillType())
+                      .experienceYears(request.getExperienceYears())
+                      .memberId(request.getMemberId())
+                      .statusCode(StatusCode.EMPLOYED)
+                      .name(request.getName())
+                      .age(request.getAge())
+                      .build();
+          }
+
+      - service 에서 다음과 같이 사용
+      Developer developer = Developer.from(request);
+      developerRepository.save(developer);
+      return CreateDeveloper.Response.fromEntity(developer);
+
+      * 방법 2
+      -service 단에 메서드로 만들어 사용한다.
+      private Developer createDeveloperFromRequest(CreateDeveloper.Request request) {
+              return Developer.builder()
+                      .developerLevel(request.getDeveloperLevel())
+                      .developerSkillType(request.getDeveloperSkillType())
+                      .experienceYears(request.getExperienceYears())
+                      .memberId(request.getMemberId())
+                      .statusCode(StatusCode.EMPLOYED)
+                      .name(request.getName())
+                      .age(request.getAge())
+                      .build();
+          }
+
+      - 다음과 같이 사용할 수 있게 되었다.
+      return CreateDeveloper.Response.fromEntity(
+                      developerRepository.save(
+                              createDeveloperFromRequest(request)
+                      )
+              );
+
+
+    - 예외처리에 대한 공통 로직
+      * 방법 1
+     private Developer getDeveloperByMemberId(String memberId){
+            /*
+                JPA 에서 find 를 해서 값을 찾아올때에 값이 있을수도 있고 없을수도 있다.
+                그렇기에 Optional 에 담아서 가져온다.(null 을 담을수 있는 클래스)
+                그냥 get 만을 하는 방식은 안티패턴에 가까운 방식이라고 한다.
+                map 같은 특정 하위 함수를 사용하여 그 안에서 무언가를 진행하게하는데
+                여기서는 단순하게 값이 없다면 Exception 을 던져준다.
+             */
+            return developerRepository.findByMemberId(memberId)
+                    .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+        }
+
+      * 결과물
+       - 전
+       @Transactional(readOnly = true)
+                 public DeveloperDetailDto getAllDeveloperDetail(String memberId) {
+                    return developerRepository.findByMemberId(memberId)
+                            .map(DeveloperDetailDto::fromEntity)
+                            .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
+        }
+
+       - 후
+       @Transactional(readOnly = true)
+          public DeveloperDetailDto getAllDeveloperDetail(String memberId) {
+              return DeveloperDetailDto.fromEntity(getDeveloperByMemberId(memberId));
+          }
+
+
+* 매직 넘버 리펙토링
+    - 매직넘버란?
+      어느 메서드에 10, 4, 5 이렇게 고정되어있는 값들을 말하는것이다.
+      이 값은 number 만이 아니라 string 도 포함이다. 이러한 값들은 나중에 에러가 났을때에
+      또는 클라이언트에 의해 값이 변해야할때에 찾기 힘들다.
+      이러한 값들을 상수로 사용하거나 매개변수로 받아 사용하자.
+
+    - 방법들
+      1. 컨스턴트
+      2. Enum
+      3. Enum 을 통한 고차원적인 방법
+
+    * 방법 1
+    다음과 같이 만들어 사용한다면 클라이언트의 요청 및 변경사항이 있을때에
+    Constant 클래스에 가서 값을 변경해주면 공통적으로 적용된다.
+
+    public class DMakerConstant {
+        /*
+            밖에서도 사용할 수 있고 처음부터 만들어져있고, 절때 바뀌지 않는 값
+            public static final!!!
+         */
+        public static final Integer MIN_SENIOR_EXPERIENCE_YEARS = 10;
+        public static final Integer MAX_JUNIOR_EXPERIENCE_YEARS = 4;
+    }
+
+    * 방법 2
+    Enum 클래스를 사용한 방법이다.
+
+    public enum DeveloperLevel {
+        NEW("신입 개발자", 0, 0),
+        JUNIOR("신입 개발자", 1, MAX_JUNIOR_EXPERIENCE_YEARS),
+        JUNGNIOR("신입 개발자",
+                MAX_JUNIOR_EXPERIENCE_YEARS + 1,
+                MIN_SENIOR_EXPERIENCE_YEARS -1),
+        SENIOR("신입 개발자", MIN_SENIOR_EXPERIENCE_YEARS, 70)
+        ;
+
+        private final String description;
+        private final Integer minExperienceYears;
+        private final Integer maxExperienceYears;
+    }
+
+    - 전
+    if(developerLevel == DeveloperLevel.SENIOR
+            && experienceYears < MIN_SENIOR_EXPERIENCE_YEARS){
+        throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+    }
+    if(developerLevel == DeveloperLevel.JUNGNIOR
+            &&(experienceYears < MAX_JUNIOR_EXPERIENCE_YEARS || experienceYears > MIN_SENIOR_EXPERIENCE_YEARS)){
+        throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+    }
+    if(developerLevel == DeveloperLevel.JUNGNIOR && experienceYears > MAX_JUNIOR_EXPERIENCE_YEARS){
+        throw  new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+    }
+
+    - 후
+    if(experienceYears < developerLevel.getMaxExperienceYears() ||
+                    experienceYears > developerLevel.getMaxExperienceYears()){
+                throw new DMakerException(LEVEL_EXPERIENCE_YEARS_NOT_MATCHED);
+            }
+
+    * Enum 정리
+      validateDeveloperLevel(SENIOR, 10) 메서드에 매개변수를 이렇게 넘겨줬을때에
+      developerLevel 에는 SENIOR 이 넘어왔으므로 SENIOR.getMaxExperienceYears()
+      가 되는 것이다.
+
+      그리고 Enum 클래스에 정의된 SENIOR 은 이러하다.
+      Constant.class = MIN_SENIOR_EXPERIENCE_YEARS = 10;
+      SENIOR("신입 개발자", MIN_SENIOR_EXPERIENCE_YEARS, 70)
+
+      19분까지 들었음
