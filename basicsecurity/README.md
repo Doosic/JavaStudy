@@ -1,2 +1,0 @@
-# basicsecurity
-SpringSecurityStudyStart
